@@ -32,7 +32,6 @@ function CurrentGame({
     try {
       await addPlayer();
     } finally {
-      // 使用 setTimeout 确保状态更新完成后再重置按钮状态
       setTimeout(() => {
         setIsAddingPlayer(false);
       }, 100);
@@ -41,7 +40,6 @@ function CurrentGame({
 
   return (
     <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-      {/* 游戏状态提示 */}
       {gameStatus !== 'notStarted' && (
         <div className={`mb-4 p-4 rounded-lg flex items-center justify-between ${
           gameStatus === 'playing' 
@@ -56,90 +54,87 @@ function CurrentGame({
             )}
             <div>
               <p className={`font-semibold ${gameStatus === 'playing' ? 'text-blue-800' : 'text-gray-800'}`}>
-                {gameStatus === 'playing' ? '游戏进行中' : '游戏已结束'}
+                {gameStatus === 'playing' ? 'Game In Progress' : 'Game Ended'}
               </p>
             </div>
           </div>
           {gameStatus === 'playing' && (
             <div className="text-right">
-              <p className="text-sm text-blue-600 font-medium">游戏时长</p>
+              <p className="text-sm text-blue-600 font-medium">Duration</p>
               <p className="text-2xl font-mono font-bold text-blue-800">{elapsedTime}</p>
             </div>
           )}
         </div>
       )}
 
-      {/* 游戏配置 */}
       <div className="space-y-3 mb-6 px-1">
-        {/* 游戏名称和小盲大盲 - 第一行：60% + 20% + 20% */}
         <div className="flex gap-2">
           <div style={{flex: '0 0 calc(60% - 5.33px)'}}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              游戏名称
+              Game Name
             </label>
             <input
               type="text"
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
-              placeholder="例如：周五夜局"
+              placeholder="e.g. Friday Night Game"
               disabled={gameStatus === 'playing' || gameStatus === 'ended'}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
             />
           </div>
           <div style={{flex: '0 0 calc(20% - 2.67px)'}}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              小盲
+              SB
             </label>
             <input
               type="number"
               value={smallBlind}
               onChange={(e) => handleSmallBlindChange(e.target.value)}
               onBlur={handleSmallBlindBlur}
-              placeholder="小盲"
+              placeholder="SB"
               disabled={gameStatus === 'playing' || gameStatus === 'ended'}
               className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
             />
           </div>
           <div style={{flex: '0 0 calc(20% - 2.67px)'}}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              大盲
+              BB
             </label>
             <input
               type="number"
               value={bigBlind}
               onChange={(e) => handleBigBlindChange(e.target.value)}
               onBlur={handleBigBlindBlur}
-              placeholder="大盲"
+              placeholder="BB"
               disabled={gameStatus === 'playing' || gameStatus === 'ended'}
               className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
             />
           </div>
         </div>
         
-        {/* Buy-in筹码量和比率 - 第二行：50% + 50% */}
         <div className="flex gap-2">
           <div style={{flex: '0 0 calc(50% - 4px)'}}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              每手Buy-in筹码量
+              Buy-in Chips per Hand
             </label>
             <input
               type="number"
               value={buyInChips}
               onChange={(e) => setBuyInChips(e.target.value === '' ? '' : (parseInt(e.target.value) || 0))}
-              placeholder="例如：200"
+              placeholder="e.g. 200"
               disabled={gameStatus === 'playing' || gameStatus === 'ended'}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
             />
           </div>
           <div style={{flex: '0 0 calc(50% - 4px)'}}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-            筹码汇率(多少筹码=1$)
+              Chip Rate (chips per $1)
             </label>
             <input
               type="number"
               value={chipValue}
               onChange={(e) => setChipValue(e.target.value === '' ? '' : (parseInt(e.target.value) || 1))}
-              placeholder="例如：10"
+              placeholder="e.g. 10"
               disabled={gameStatus === 'playing' || gameStatus === 'ended'}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
             />
@@ -147,29 +142,26 @@ function CurrentGame({
         </div>
       </div>
 
-      {/* 添加玩家 */}
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <div className="flex gap-2">
-          {/* 姓名输入 */}
           <div className="flex-1">
             <label className="block text-lg font-semibold text-gray-800 mb-2">
-              添加玩家
+              Add Player
             </label>
             <input
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && !isAddingPlayer && handleAddPlayer()}
-              placeholder="玩家姓名"
+              placeholder="Player name"
               disabled={isAddingPlayer}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
           
-          {/* 手数输入（带加减按钮） */}
           <div className="flex-shrink-0">
             <label className="block text-lg font-semibold text-gray-800 mb-2 text-center">
-              手数
+              Hands
             </label>
             <div className="flex items-center gap-1">
               <button
@@ -177,7 +169,7 @@ function CurrentGame({
                 onClick={() => setBuyIns((buyIns || 0) - 1)}
                 disabled={isAddingPlayer}
                 className="w-8 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-lg transition-colors text-gray-700 font-bold text-lg"
-                title="减少手数（可负数，表示卸码）"
+                title="Decrease hands (negative = cash out)"
               >
                 −
               </button>
@@ -193,14 +185,13 @@ function CurrentGame({
                 onClick={() => setBuyIns((buyIns || 0) + 1)}
                 disabled={isAddingPlayer}
                 className="w-8 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-lg transition-colors text-gray-700 font-bold text-lg"
-                title="增加手数"
+                title="Increase hands"
               >
                 +
               </button>
             </div>
           </div>
           
-          {/* 添加按钮 */}
           <div className="flex items-end">
             <button
               onClick={handleAddPlayer}
@@ -212,27 +203,26 @@ function CurrentGame({
               }`}
             >
               <span className="w-5 h-5"><Icons.Plus /></span>
-              <span className="hidden sm:inline">{isAddingPlayer ? '添加中...' : '添加'}</span>
+              <span className="hidden sm:inline">{isAddingPlayer ? 'Adding...' : 'Add'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 玩家列表 */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-4">玩家列表</h3>
+        <h3 className="text-lg font-semibold mb-4">Players</h3>
         {players.length > 0 ? (
           <>
             <div className="overflow-x-auto -mx-2 sm:mx-0">
               <table className="w-full border-collapse text-xs sm:text-base">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-left font-semibold">姓名</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-left font-semibold">Name</th>
                     <th className="px-1 sm:px-4 py-2 sm:py-3 text-center font-semibold">Buy-in</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold hidden md:table-cell">买入</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">最终码量</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">筹码盈亏</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">$盈亏</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold hidden md:table-cell">Total In</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">Final Chips</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">Chip P/L</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">$ P/L</th>
                     <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold hidden md:table-cell">BB</th>
                     <th className="px-1 sm:px-4 py-2 sm:py-3"></th>
                   </tr>
@@ -250,7 +240,7 @@ function CurrentGame({
                               type="button"
                               onClick={() => updatePlayerBuyIns(player.id, (player.buyIns || 0) - 1)}
                               className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed rounded transition-colors text-gray-700 font-bold text-xs sm:text-sm flex-shrink-0"
-                              title="减少手数（可负数，表示卸码）"
+                              title="Decrease hands (negative = cash out)"
                             >
                               −
                             </button>
@@ -264,7 +254,7 @@ function CurrentGame({
                               type="button"
                               onClick={() => updatePlayerBuyIns(player.id, (player.buyIns || 0) + 1)}
                               className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed rounded transition-colors text-gray-700 font-bold text-xs sm:text-sm flex-shrink-0"
-                              title="增加手数"
+                              title="Increase hands"
                             >
                               +
                             </button>
@@ -306,7 +296,7 @@ function CurrentGame({
                 </tbody>
                 <tfoot>
                   <tr className="bg-gray-100 font-bold text-xs sm:text-base">
-                    <td className="px-1 sm:px-4 py-2 sm:py-3">总计</td>
+                    <td className="px-1 sm:px-4 py-2 sm:py-3">Total</td>
                     <td className="px-1 sm:px-4 py-2 sm:py-3"></td>
                     <td className="px-1 sm:px-4 py-2 sm:py-3 text-right hidden md:table-cell">{balance.totalBuyIn.toLocaleString()}</td>
                     <td className="px-1 sm:px-4 py-2 sm:py-3 text-right">{balance.totalEndChips.toLocaleString()}</td>
@@ -321,7 +311,6 @@ function CurrentGame({
               </table>
             </div>
 
-            {/* 账目平衡提示 - 只在游戏开始后显示 */}
             {gameStatus !== 'notStarted' && (
               <div className={`mt-4 p-4 rounded-lg flex items-center gap-3 ${
                 balance.isBalanced 
@@ -332,8 +321,8 @@ function CurrentGame({
                   <>
                     <span className="w-6 h-6 text-green-600 flex-shrink-0"><Icons.CheckCircle /></span>
                     <div>
-                      <p className="font-semibold text-green-800">账目平衡 ✓</p>
-                      <p className="text-sm text-green-700">买入筹码总量与最终筹码总量一致</p>
+                      <p className="font-semibold text-green-800">Books Balanced ✓</p>
+                      <p className="text-sm text-green-700">Total buy-in chips match total final chips</p>
                     </div>
                   </>
                 ) : (
@@ -341,12 +330,12 @@ function CurrentGame({
                     <span className="w-6 h-6 text-red-600 flex-shrink-0"><Icons.AlertCircle /></span>
                     <div>
                       <p className="font-semibold text-red-800">
-                        账目不平！{balance.difference > 0 ? '多算了' : '少算了'} {Math.abs(balance.difference).toLocaleString()} 筹码
+                        Books Don't Balance! {balance.difference > 0 ? 'Over' : 'Under'} by {Math.abs(balance.difference).toLocaleString()} chips
                       </p>
                       <p className="text-sm text-red-700">
                         {balance.difference > 0 
-                          ? '最终筹码总量大于买入总量，请检查是否有输入错误'
-                          : '最终筹码总量小于买入总量，请检查是否有遗漏'}
+                          ? 'Final chips exceed total buy-in. Please check for input errors.'
+                          : 'Final chips are less than total buy-in. Please check for missing entries.'}
                       </p>
                     </div>
                   </>
@@ -356,14 +345,12 @@ function CurrentGame({
           </>
         ) : (
           <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-            <p>暂无玩家，请添加玩家</p>
+            <p>No players yet. Please add players.</p>
           </div>
         )}
       </div>
 
-      {/* 游戏控制按钮 */}
       <div className="space-y-3 mt-6">
-        {/* 第一行：开始游戏和结束游戏 */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             onClick={startGame}
@@ -371,7 +358,7 @@ function CurrentGame({
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
           >
             <span className="w-5 h-5"><Icons.Play /></span>
-            开始游戏
+            Start
           </button>
           <button
             onClick={endGame}
@@ -379,21 +366,20 @@ function CurrentGame({
             className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
           >
             <span className="w-5 h-5"><Icons.Square /></span>
-            结束游戏
+            End
           </button>
           
-          {/* 第二行：保存游戏和舍弃游戏（桌面端在同一行） */}
           <button
             onClick={saveGame}
             disabled={gameStatus !== 'ended'}
             className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
           >
             <span className="w-5 h-5"><Icons.Save /></span>
-            保存游戏
+            Save
           </button>
           <button
             onClick={() => {
-              if (gameStatus === 'notStarted' || confirm('确定要舍弃当前游戏吗？所有数据将不会保存。')) {
+              if (gameStatus === 'notStarted' || confirm('Are you sure you want to discard the current game? All data will be lost.')) {
                 resetGame();
               }
             }}
@@ -401,7 +387,7 @@ function CurrentGame({
             className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
           >
             <span className="w-5 h-5"><Icons.Trash2 /></span>
-            舍弃游戏
+            Discard
           </button>
         </div>
       </div>
@@ -410,4 +396,3 @@ function CurrentGame({
 }
 
 export default CurrentGame;
-

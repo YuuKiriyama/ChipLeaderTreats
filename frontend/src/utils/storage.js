@@ -1,21 +1,18 @@
-// storage.js - 后端API存储封装
-// 动态检测API地址，支持移动设备访问
+// storage.js - Backend API storage wrapper
+// Dynamic API address detection with mobile device support
 
-// 尝试多个可能的API地址
 const getApiBaseUrl = () => {
   const hostname = window.location.hostname;
   const protocol = window.location.protocol;
   
-  // 候选API地址列表
   const candidates = [
     'http://localhost:3001/api',
     `http://${hostname}:3001/api`,
-    `http://10.245.74.88:3001/api`, // 您的实际IP地址
-    'http://192.168.1.100:3001/api', // 常见的局域网地址
-    'http://192.168.0.100:3001/api', // 另一个常见的局域网地址
+    `http://10.245.74.88:3001/api`,
+    'http://192.168.1.100:3001/api',
+    'http://192.168.0.100:3001/api',
   ];
   
-  // 如果是HTTPS，也尝试HTTPS版本
   if (protocol === 'https:') {
     candidates.push(
       'https://localhost:3001/api',
@@ -24,16 +21,13 @@ const getApiBaseUrl = () => {
     );
   }
   
-  // 返回第一个候选地址（实际检测会在使用时进行）
   return candidates[0];
 };
 
 const API_BASE_URL = getApiBaseUrl();
 
-// 存储当前可用的API地址
 let currentApiUrl = API_BASE_URL;
 
-// 检测可用的API地址
 const detectApiUrl = async () => {
   const candidates = [
     'http://localhost:3001/api',
@@ -50,19 +44,18 @@ const detectApiUrl = async () => {
         timeout: 3000 
       });
       if (response.ok) {
-        console.log(`找到可用的API地址: ${url}`);
+        console.log(`Found available API at: ${url}`);
         return url;
       }
     } catch (error) {
-      console.log(`API地址 ${url} 不可用:`, error.message);
+      console.log(`API at ${url} unavailable:`, error.message);
     }
   }
   
-  console.error('所有API地址都不可用');
+  console.error('All API addresses are unavailable');
   return null;
 };
 
-// 获取当前API地址
 const getCurrentApiUrl = async () => {
   if (!currentApiUrl) {
     currentApiUrl = await detectApiUrl();
@@ -71,12 +64,11 @@ const getCurrentApiUrl = async () => {
 };
 
 export const storage = {
-  // 获取历史记录
   get: async (key) => {
     try {
       const apiUrl = await getCurrentApiUrl();
       if (!apiUrl) {
-        throw new Error('无法连接到服务器');
+        throw new Error('Cannot connect to server');
       }
       
       if (key === 'poker-history') {
@@ -88,7 +80,7 @@ export const storage = {
         if (result.success) {
           return { value: JSON.stringify(result.data) };
         } else {
-          console.error('API返回错误:', result.error);
+          console.error('API returned error:', result.error);
           return null;
         }
       } else if (key === 'poker-favorites') {
@@ -100,14 +92,13 @@ export const storage = {
         if (result.success) {
           return { value: JSON.stringify(result.data) };
         } else {
-          console.error('API返回错误:', result.error);
+          console.error('API returned error:', result.error);
           return null;
         }
       }
       return null;
     } catch (error) {
-      console.error('获取数据失败:', error);
-      // 如果是网络错误，返回空数组而不是null
+      console.error('Failed to fetch data:', error);
       if (key === 'poker-history') {
         return { value: JSON.stringify([]) };
       } else if (key === 'poker-favorites') {
@@ -117,12 +108,11 @@ export const storage = {
     }
   },
 
-  // 保存数据
   set: async (key, value) => {
     try {
       const apiUrl = await getCurrentApiUrl();
       if (!apiUrl) {
-        throw new Error('无法连接到服务器');
+        throw new Error('Cannot connect to server');
       }
       
       const data = JSON.parse(value);
@@ -139,10 +129,10 @@ export const storage = {
         }
         const result = await response.json();
         if (result.success) {
-          console.log('历史记录保存成功');
+          console.log('History saved successfully');
           return true;
         } else {
-          console.error('保存失败:', result.error);
+          console.error('Save failed:', result.error);
           return false;
         }
       } else if (key === 'poker-favorites') {
@@ -158,21 +148,20 @@ export const storage = {
         }
         const result = await response.json();
         if (result.success) {
-          console.log('收藏列表保存成功');
+          console.log('Favorites saved successfully');
           return true;
         } else {
-          console.error('保存失败:', result.error);
+          console.error('Save failed:', result.error);
           return false;
         }
       }
       return false;
     } catch (error) {
-      console.error('保存数据失败:', error);
+      console.error('Failed to save data:', error);
       return false;
     }
   },
 
-  // 检查服务器连接状态
   checkConnection: async () => {
     try {
       const apiUrl = await getCurrentApiUrl();
@@ -182,14 +171,12 @@ export const storage = {
       const response = await fetch(`${apiUrl}/health`);
       return response.ok;
     } catch (error) {
-      console.error('服务器连接检查失败:', error);
-      // 尝试重新检测API地址
+      console.error('Server connection check failed:', error);
       currentApiUrl = null;
       return false;
     }
   },
 
-  // 手动重新检测API地址
   resetApiUrl: () => {
     currentApiUrl = null;
   }

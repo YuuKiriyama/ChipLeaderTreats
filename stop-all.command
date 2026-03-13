@@ -1,78 +1,78 @@
 #!/bin/bash
 
-# 获取脚本所在目录
+# Get script directory
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
 
-# 清屏
+# Clear screen
 clear
 
 echo "======================================"
-echo "  德州扑克积分统计系统 - 停止服务"
+echo "  ChipLeaderTreats - Stop Services"
 echo "======================================"
 echo ""
 
-echo "🔍 检查运行中的服务..."
+echo "🔍 Checking running services..."
 
-# 检查并停止后端服务
+# Check and stop backend service
 BACKEND_PIDS=$(ps aux | grep "node server.js" | grep -v grep | awk '{print $2}')
 if [ ! -z "$BACKEND_PIDS" ]; then
-    echo "🛑 停止后端服务 (PID: $BACKEND_PIDS)..."
+    echo "🛑 Stopping backend service (PID: $BACKEND_PIDS)..."
     kill $BACKEND_PIDS 2>/dev/null
     sleep 1
-    # 强制杀死如果还在运行
+    # Force kill if still running
     kill -9 $BACKEND_PIDS 2>/dev/null
-    echo "✅ 后端服务已停止"
+    echo "✅ Backend service stopped"
 else
-    echo "ℹ️  后端服务未运行"
+    echo "ℹ️  Backend service is not running"
 fi
 
-# 检查并停止前端服务
+# Check and stop frontend service
 FRONTEND_PIDS=$(ps aux | grep "vite" | grep -v grep | awk '{print $2}')
 if [ ! -z "$FRONTEND_PIDS" ]; then
-    echo "🛑 停止前端服务 (PID: $FRONTEND_PIDS)..."
+    echo "🛑 Stopping frontend service (PID: $FRONTEND_PIDS)..."
     kill $FRONTEND_PIDS 2>/dev/null
     sleep 1
-    # 强制杀死如果还在运行
+    # Force kill if still running
     kill -9 $FRONTEND_PIDS 2>/dev/null
-    echo "✅ 前端服务已停止"
+    echo "✅ Frontend service stopped"
 else
-    echo "ℹ️  前端服务未运行"
+    echo "ℹ️  Frontend service is not running"
 fi
 
-# 检查并停止npm进程
+# Check and stop npm processes
 NPM_PIDS=$(ps aux | grep "npm" | grep -E "(start|dev)" | grep -v grep | awk '{print $2}')
 if [ ! -z "$NPM_PIDS" ]; then
-    echo "🛑 停止npm进程 (PID: $NPM_PIDS)..."
+    echo "🛑 Stopping npm processes (PID: $NPM_PIDS)..."
     kill $NPM_PIDS 2>/dev/null
     sleep 1
     kill -9 $NPM_PIDS 2>/dev/null
-    echo "✅ npm进程已停止"
+    echo "✅ npm processes stopped"
 fi
 
 echo ""
-echo "🔍 最终检查..."
+echo "🔍 Final check..."
 
-# 最终检查
+# Final check
 REMAINING=$(ps aux | grep -E "(node server.js|vite|npm.*dev|npm.*start)" | grep -v grep | grep CrisCL)
 if [ -z "$REMAINING" ]; then
-    echo "✅ 所有服务已成功停止！"
+    echo "✅ All services stopped successfully!"
 else
-    echo "⚠️  仍有进程在运行："
+    echo "⚠️  Some processes are still running:"
     echo "$REMAINING"
 fi
 
 echo ""
 echo "======================================"
-echo "  服务停止完成"
+echo "  Service stop complete"
 echo "======================================"
 echo ""
-echo "💡 提示："
-echo "  - 如果服务仍在运行，请手动执行："
+echo "💡 Tips:"
+echo "  - If services are still running, manually run:"
 echo "    pkill -f 'node server.js'"
 echo "    pkill -f 'vite'"
-echo "  - 或者使用 Activity Monitor 查看进程"
+echo "  - Or use Activity Monitor to view processes"
 echo ""
 
-# 等待用户按键
-read -p "按任意键退出..."
+# Wait for user keypress
+read -p "Press any key to exit..."

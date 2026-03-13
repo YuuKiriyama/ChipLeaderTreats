@@ -2,10 +2,10 @@
 chcp 65001 >nul
 setlocal
 
-REM 获取脚本所在目录
+REM Get script directory
 cd /d "%~dp0"
 
-REM 获取本机IP地址
+REM Get local IP address
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
     set LOCAL_IP=%%a
     goto :found_ip
@@ -13,41 +13,40 @@ for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
 :found_ip
 set LOCAL_IP=%LOCAL_IP:~1%
 
-REM 清屏
+REM Clear screen
 cls
 
 echo ======================================
-echo   德州扑克积分统计系统 - 开发服务器
+echo   ChipLeaderTreats - Dev Server
 echo ======================================
 echo.
-echo 正在启动Vite开发服务器...
+echo Starting Vite dev server...
 echo.
 
-REM 检查node_modules是否存在
+REM Check if node_modules exists
 if not exist "node_modules" (
-    echo ⚠️  首次运行需要安装依赖...
+    echo ⚠️  First run - installing dependencies...
     call npm install
     echo.
 )
 
-echo ✅ 服务器启动成功！
+echo ✅ Server started successfully!
 echo.
-echo 📱 手机访问地址：
+echo 📱 Mobile access URL:
 echo    http://%LOCAL_IP%:3000
 echo.
-echo 💻 本机访问地址：
+echo 💻 Local access URL:
 echo    http://localhost:3000
 echo.
-echo 提示：
-echo   - 手机需要和电脑在同一个WiFi网络
-echo   - 修改代码会自动热更新
-echo   - 按 Ctrl+C 停止服务器
+echo Tips:
+echo   - Mobile device must be on the same WiFi network as your computer
+echo   - Code changes will hot-reload automatically
+echo   - Press Ctrl+C to stop the server
 echo.
 echo ======================================
 echo.
 
-REM 启动开发服务器
+REM Start dev server
 call npm run dev
 
 pause
-

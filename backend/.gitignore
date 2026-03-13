@@ -1,18 +1,18 @@
-# 依赖
+# Dependencies
 node_modules/
 
-# 数据文件
+# Data files
 data/*.json
 
-# 日志
+# Logs
 *.log
 npm-debug.log*
 
-# 环境变量
+# Environment variables
 .env
 .env.local
 
-# 操作系统
+# OS
 .DS_Store
 Thumbs.db
 

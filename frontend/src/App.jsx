@@ -26,18 +26,15 @@ function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [lastSyncTime, setLastSyncTime] = useState(null);
 
-  // 初始化：加载数据并恢复游戏状态
   useEffect(() => {
     loadHistory();
     loadFavorites();
     checkConnection();
     
-    // 尝试恢复当前游戏状态
     const savedGameState = localStorage.getItem('currentGameState');
     if (savedGameState) {
       try {
         const state = JSON.parse(savedGameState);
-        // 恢复游戏状态
         setGameName(state.gameName || '');
         setSmallBlind(state.smallBlind || 1);
         setBigBlind(state.bigBlind || 2);
@@ -47,29 +44,26 @@ function App() {
         setStartTime(state.startTime ? new Date(state.startTime) : null);
         setEndTime(state.endTime ? new Date(state.endTime) : null);
         setPlayers(state.players || []);
-        console.log('✅ 游戏状态已恢复');
       } catch (error) {
-        console.error('恢复游戏状态失败:', error);
+        console.error('Failed to restore game state:', error);
         generateGameName();
       }
     } else {
       generateGameName();
     }
     
-    // 设置定期同步
     const syncInterval = setInterval(() => {
       if (isOnline) {
         loadHistory();
         loadFavorites();
       }
-    }, 30000); // 每30秒同步一次
+    }, 30000);
     
     return () => {
       clearInterval(syncInterval);
     };
   }, [isOnline]);
 
-  // 计时器效果
   useEffect(() => {
     let interval;
     if (gameStatus === 'playing' && startTime) {
@@ -87,9 +81,7 @@ function App() {
     };
   }, [gameStatus, startTime]);
 
-  // 自动保存当前游戏状态
   useEffect(() => {
-    // 只在游戏进行中或已结束时保存状态
     if (gameStatus !== 'notStarted') {
       const currentGameState = {
         gameName,
@@ -105,7 +97,6 @@ function App() {
       };
       
       localStorage.setItem('currentGameState', JSON.stringify(currentGameState));
-      console.log('💾 游戏状态已自动保存');
     }
   }, [gameName, smallBlind, bigBlind, buyInChips, chipValue, gameStatus, startTime, endTime, players]);
 
@@ -124,19 +115,16 @@ function App() {
 
   const loadHistory = async () => {
     try {
-      console.log('正在加载历史记录...');
       const result = await storage.get('poker-history');
       if (result) {
         const data = JSON.parse(result.value);
         setHistory(data);
-        console.log(`历史记录加载成功，共 ${data.length} 条记录`);
         setLastSyncTime(new Date());
       } else {
-        console.log('历史记录为空');
         setHistory([]);
       }
     } catch (error) {
-      console.error('加载历史记录失败:', error);
+      console.error('Failed to load history:', error);
       setHistory([]);
       setIsOnline(false);
     }
@@ -144,18 +132,15 @@ function App() {
 
   const loadFavorites = async () => {
     try {
-      console.log('正在加载收藏列表...');
       const result = await storage.get('poker-favorites');
       if (result) {
         const data = JSON.parse(result.value);
         setFavorites(data);
-        console.log(`收藏列表加载成功，共 ${data.length} 个收藏`);
       } else {
-        console.log('收藏列表为空');
         setFavorites([]);
       }
     } catch (error) {
-      console.error('加载收藏列表失败:', error);
+      console.error('Failed to load favorites:', error);
       setFavorites([]);
       setIsOnline(false);
     }
@@ -163,19 +148,17 @@ function App() {
 
   const saveHistory = async (newHistory) => {
     try {
-      console.log('正在保存历史记录...');
       const success = await storage.set('poker-history', JSON.stringify(newHistory));
       if (success) {
         setHistory(newHistory);
         setLastSyncTime(new Date());
-        console.log('历史记录保存成功');
         return true;
       } else {
-        console.error('历史记录保存失败');
+        console.error('Failed to save history');
         return false;
       }
     } catch (error) {
-      console.error('保存历史记录失败:', error);
+      console.error('Failed to save history:', error);
       setIsOnline(false);
       return false;
     }
@@ -186,7 +169,7 @@ function App() {
       await storage.set('poker-favorites', JSON.stringify(newFavorites));
       setFavorites(newFavorites);
     } catch (error) {
-      console.error('保存收藏失败:', error);
+      console.error('Failed to save favorites:', error);
     }
   };
 
@@ -204,7 +187,7 @@ function App() {
 
   const handleSmallBlindBlur = () => {
     if (smallBlind && bigBlind && smallBlind > bigBlind) {
-      alert('小盲不能超过大盲');
+      alert('Small blind cannot exceed big blind');
       setSmallBlind(bigBlind);
     }
   };
@@ -216,18 +199,18 @@ function App() {
 
   const handleBigBlindBlur = () => {
     if (smallBlind && bigBlind && bigBlind < smallBlind) {
-      alert('大盲不能低于小盲');
+      alert('Big blind cannot be less than small blind');
       setBigBlind(smallBlind);
     }
   };
 
   const startGame = () => {
     if (!gameName.trim()) {
-      alert('请先输入游戏名称');
+      alert('Please enter a game name first');
       return;
     }
     if (!buyInChips || !chipValue || !smallBlind || !bigBlind) {
-      alert('请填写完整的游戏配置');
+      alert('Please fill in all game settings');
       return;
     }
     if (gameStatus === 'notStarted') {
@@ -239,7 +222,7 @@ function App() {
 
   const endGame = () => {
     if (players.length === 0) {
-      alert('请至少添加一名玩家');
+      alert('Please add at least one player');
       return;
     }
     if (gameStatus === 'playing') {
@@ -255,19 +238,17 @@ function App() {
     setPlayers([]);
     generateGameName();
     
-    // 清除保存的游戏状态
     localStorage.removeItem('currentGameState');
-    console.log('🗑️ 游戏状态已清除');
   };
 
   const addPlayer = () => {
     if (!playerName.trim()) {
-      alert('请输入玩家姓名');
+      alert('Please enter a player name');
       return;
     }
     
     if (players.some(p => p.name === playerName.trim())) {
-      alert('该玩家已存在，不能添加重名玩家');
+      alert('This player already exists. Duplicate names are not allowed.');
       return;
     }
     
@@ -305,27 +286,26 @@ function App() {
 
   const saveGame = async () => {
     if (!gameName.trim()) {
-      alert('请输入游戏名称');
+      alert('Please enter a game name');
       return;
     }
 
     if (!startTime || !endTime) {
-      alert('请先开始并结束游戏');
+      alert('Please start and end the game first');
       return;
     }
 
     if (players.length === 0) {
-      alert('请至少添加一名玩家');
+      alert('Please add at least one player');
       return;
     }
 
-    // 检查账目平衡
     const totalBuyIn = players.reduce((sum, p) => sum + ((p.buyIns || 0) * (buyInChips || 0)), 0);
     const totalEndChips = players.reduce((sum, p) => sum + (p.endChips || 0), 0);
     const difference = totalEndChips - totalBuyIn;
     
     if (difference !== 0) {
-      const message = `账目不平！${difference > 0 ? '多算了' : '少算了'} ${Math.abs(difference).toLocaleString()} 筹码。\n\n是否强制保存？`;
+      const message = `Books don't balance! ${difference > 0 ? 'Over' : 'Under'} by ${Math.abs(difference).toLocaleString()} chips.\n\nForce save anyway?`;
       if (!confirm(message)) {
         return;
       }
@@ -356,17 +336,16 @@ function App() {
     const newHistory = [game, ...history];
     const success = await saveHistory(newHistory);
     if (success) {
-      // 清除保存的游戏状态（因为已经保存到历史记录）
       localStorage.removeItem('currentGameState');
       resetGame();
-      alert('游戏已保存！');
+      alert('Game saved!');
     } else {
-      alert('游戏保存失败，请检查网络连接或重试');
+      alert('Failed to save game. Please check your network connection and try again.');
     }
   };
 
   const deleteGame = (gameId) => {
-    if (confirm('确定要删除这条记录吗？')) {
+    if (confirm('Are you sure you want to delete this record?')) {
       const newHistory = history.filter(g => g.id !== gameId);
       saveHistory(newHistory);
     }
@@ -376,17 +355,16 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-4">
         <header className="mb-6">
-          {/* 桌面版布局 */}
+          {/* Desktop layout */}
           <div className="hidden md:flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
               <span className="w-8 h-8"><Icons.DollarSign /></span>
-              CrisCL积分统计
+              ChipLeaderTreats
             </h1>
-            <h2 className="text-xl font-bold text-gray-800">我们Cris才是真正的CL</h2>
             <div className="flex items-center gap-3 text-sm">
               <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <span className={isOnline ? 'text-green-600' : 'text-red-600'}>
-                {isOnline ? '在线' : '离线'}
+                {isOnline ? 'Online' : 'Offline'}
               </span>
               {lastSyncTime && (
                 <span className="text-gray-500 text-xs">
@@ -401,31 +379,28 @@ function App() {
                   loadFavorites();
                 }}
                 className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
-                title="刷新数据并重新检测服务器"
+                title="Refresh data and re-detect server"
               >
-                刷新
+                Refresh
               </button>
             </div>
           </div>
           
-          {/* 移动端布局 */}
+          {/* Mobile layout */}
           <div className="md:hidden">
             <div className="flex items-start justify-between gap-2">
-              {/* 左侧：标题 */}
               <div className="flex items-start gap-2 flex-shrink-0">
                 <span className="w-6 h-6 mt-1"><Icons.DollarSign /></span>
                 <div className="flex flex-col">
-                  <h1 className="text-lg font-bold text-gray-800 leading-tight">CrisCL积分统计</h1>
-                  <h2 className="text-xs font-bold text-gray-600 leading-tight">我们Cris才是真正的CL</h2>
+                  <h1 className="text-lg font-bold text-gray-800 leading-tight">ChipLeaderTreats</h1>
                 </div>
               </div>
               
-              {/* 中间：状态信息 */}
               <div className="flex flex-col items-center flex-shrink-0 text-xs">
                 <div className="flex items-center gap-1">
                   <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
                   <span className={isOnline ? 'text-green-600' : 'text-red-600'}>
-                    {isOnline ? '在线' : '离线'}
+                    {isOnline ? 'Online' : 'Offline'}
                   </span>
                 </div>
                 {lastSyncTime && (
@@ -435,7 +410,6 @@ function App() {
                 )}
               </div>
               
-              {/* 右侧：刷新按钮 */}
               <button
                 onClick={() => {
                   storage.resetApiUrl();
@@ -444,9 +418,9 @@ function App() {
                   loadFavorites();
                 }}
                 className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors flex-shrink-0"
-                title="刷新数据并重新检测服务器"
+                title="Refresh data and re-detect server"
               >
-                刷新
+                Refresh
               </button>
             </div>
           </div>
@@ -462,7 +436,7 @@ function App() {
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
-              当前游戏
+              Current Game
             </button>
             <button
               onClick={() => {
@@ -475,7 +449,7 @@ function App() {
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
-              历史记录
+              History
             </button>
           </div>
         </div>
@@ -535,4 +509,3 @@ function App() {
 }
 
 export default App;
-

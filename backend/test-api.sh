@@ -1,25 +1,24 @@
 #!/bin/bash
 
 echo "======================================"
-echo "  测试后端API"
+echo "  Test Backend API"
 echo "======================================"
 echo ""
 
 API_BASE="http://localhost:3001/api"
 
-echo "1. 测试健康检查..."
+echo "1. Testing health check..."
 curl -s "${API_BASE}/health" | python3 -m json.tool
 echo ""
 
-echo "2. 测试获取历史记录..."
+echo "2. Testing get history..."
 curl -s "${API_BASE}/history" | python3 -m json.tool
 echo ""
 
-echo "3. 测试获取收藏列表..."
+echo "3. Testing get favorites..."
 curl -s "${API_BASE}/favorites" | python3 -m json.tool
 echo ""
 
 echo "======================================"
-echo "  测试完成"
+echo "  Test complete"
 echo "======================================"
-

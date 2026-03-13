@@ -43,47 +43,46 @@ export default function LiteCurrentGame({
             )}
             <div>
               <p className={`font-semibold ${gameStatus === 'playing' ? 'text-blue-800' : 'text-gray-800'}`}>
-                {gameStatus === 'playing' ? '游戏进行中' : '游戏已结束'}
+                {gameStatus === 'playing' ? 'Game In Progress' : 'Game Ended'}
               </p>
             </div>
           </div>
-          {/* Lite 版不显示计时器 */}
         </div>
       )}
 
       <div className="space-y-3 mb-6 px-1">
         <div className="flex gap-2">
           <div style={{flex: '0 0 calc(60% - 5.33px)'}}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">游戏名称</label>
-            <input type="text" value={gameName} onChange={(e) => setGameName(e.target.value)} placeholder="例如：周五夜局"
+            <label className="block text-sm font-medium text-gray-700 mb-2">Game Name</label>
+            <input type="text" value={gameName} onChange={(e) => setGameName(e.target.value)} placeholder="e.g. Friday Night Game"
                    disabled={gameStatus === 'playing' || gameStatus === 'ended'}
                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"/>
           </div>
           <div style={{flex: '0 0 calc(20% - 2.67px)'}}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">小盲</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">SB</label>
             <input type="number" value={smallBlind} onChange={(e) => handleSmallBlindChange(e.target.value)} onBlur={handleSmallBlindBlur}
-                   placeholder="小盲" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
+                   placeholder="SB" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"/>
           </div>
           <div style={{flex: '0 0 calc(20% - 2.67px)'}}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">大盲</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">BB</label>
             <input type="number" value={bigBlind} onChange={(e) => handleBigBlindChange(e.target.value)} onBlur={handleBigBlindBlur}
-                   placeholder="大盲" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
+                   placeholder="BB" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"/>
           </div>
         </div>
 
         <div className="flex gap-2">
           <div style={{flex: '0 0 calc(50% - 4px)'}}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">每手Buy-in筹码量</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Buy-in Chips per Hand</label>
             <input type="number" value={buyInChips} onChange={(e) => setBuyInChips(e.target.value === '' ? '' : (parseInt(e.target.value) || 0))}
-                   placeholder="例如：200" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
+                   placeholder="e.g. 200" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"/>
           </div>
           <div style={{flex: '0 0 calc(50% - 4px)'}}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">筹码汇率(多少筹码=1$)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Chip Rate (chips per $1)</label>
             <input type="number" value={chipValue} onChange={(e) => setChipValue(e.target.value === '' ? '' : (parseInt(e.target.value) || 1))}
-                   placeholder="例如：10" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
+                   placeholder="e.g. 10" disabled={gameStatus === 'playing' || gameStatus === 'ended'}
                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"/>
           </div>
         </div>
@@ -92,13 +91,13 @@ export default function LiteCurrentGame({
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <div className="flex gap-2">
           <div className="flex-1">
-            <label className="block text-lg font-semibold text-gray-800 mb-2">添加玩家</label>
+            <label className="block text-lg font-semibold text-gray-800 mb-2">Add Player</label>
             <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !isAddingPlayer && handleAddPlayer()}
-                   placeholder="玩家姓名" disabled={isAddingPlayer}
+                   placeholder="Player name" disabled={isAddingPlayer}
                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"/>
           </div>
           <div className="flex-shrink-0">
-            <label className="block text-lg font-semibold text-gray-800 mb-2 text-center">手数</label>
+            <label className="block text-lg font-semibold text-gray-800 mb-2 text-center">Hands</label>
             <div className="flex items-center gap-1">
               <button type="button" onClick={() => setBuyIns((buyIns || 0) - 1)} disabled={isAddingPlayer}
                       className="w-8 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-lg transition-colors text-gray-700 font-bold text-lg">−</button>
@@ -113,26 +112,26 @@ export default function LiteCurrentGame({
             <button onClick={handleAddPlayer} disabled={isAddingPlayer}
                     className={`px-6 h-10 text-white rounded-lg flex items-center justify-center gap-2 transition-colors flex-shrink-0 ${isAddingPlayer ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}>
               <span className="w-5 h-5"><Icons.Plus /></span>
-              <span className="hidden sm:inline">{isAddingPlayer ? '添加中...' : '添加'}</span>
+              <span className="hidden sm:inline">{isAddingPlayer ? 'Adding...' : 'Add'}</span>
             </button>
           </div>
         </div>
       </div>
 
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-4">玩家列表</h3>
+        <h3 className="text-lg font-semibold mb-4">Players</h3>
         {players.length > 0 ? (
           <>
             <div className="overflow-x-auto -mx-2 sm:mx-0">
               <table className="w-full border-collapse text-xs sm:text-base">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-left font-semibold">姓名</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-left font-semibold">Name</th>
                     <th className="px-1 sm:px-4 py-2 sm:py-3 text-center font-semibold">Buy-in</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold hidden md:table-cell">买入</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">最终码量</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">筹码盈亏</th>
-                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">$盈亏</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold hidden md:table-cell">Total In</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">Final Chips</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">Chip P/L</th>
+                    <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold">$ P/L</th>
                     <th className="px-1 sm:px-4 py-2 sm:py-3 text-right font-semibold hidden md:table-cell">BB</th>
                     <th className="px-1 sm:px-4 py-2 sm:py-3"></th>
                   </tr>
@@ -150,7 +149,7 @@ export default function LiteCurrentGame({
                               type="button"
                               onClick={() => updatePlayerBuyIns(player.id, (player.buyIns || 0) - 1)}
                               className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition-colors text-gray-700 font-bold text-xs sm:text-sm flex-shrink-0"
-                              title="减少手数（可负数，表示卸码）"
+                              title="Decrease hands (negative = cash out)"
                             >
                               −
                             </button>
@@ -164,7 +163,7 @@ export default function LiteCurrentGame({
                               type="button"
                               onClick={() => updatePlayerBuyIns(player.id, (player.buyIns || 0) + 1)}
                               className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition-colors text-gray-700 font-bold text-xs sm:text-sm flex-shrink-0"
-                              title="增加手数"
+                              title="Increase hands"
                             >
                               +
                             </button>
@@ -203,7 +202,7 @@ export default function LiteCurrentGame({
                 </tbody>
                 <tfoot>
                   <tr className="bg-gray-100 font-bold text-xs sm:text-base">
-                    <td className="px-1 sm:px-4 py-2 sm:py-3">总计</td>
+                    <td className="px-1 sm:px-4 py-2 sm:py-3">Total</td>
                     <td className="px-1 sm:px-4 py-2 sm:py-3"></td>
                     <td className="px-1 sm:px-4 py-2 sm:py-3 text-right hidden md:table-cell">{balance.totalBuyIn.toLocaleString()}</td>
                     <td className="px-1 sm:px-4 py-2 sm:py-3 text-right">{balance.totalEndChips.toLocaleString()}</td>
@@ -220,40 +219,37 @@ export default function LiteCurrentGame({
           </>
         ) : (
           <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-            <p>暂无玩家，请添加玩家</p>
+            <p>No players yet. Please add players.</p>
           </div>
         )}
       </div>
 
-      {/* Lite：按钮两行布局 */}
       <div className="space-y-3 mt-6">
         <div className="grid grid-cols-2 gap-3">
           <button onClick={startGame} disabled={gameStatus !== 'notStarted'}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors">
             <span className="w-5 h-5"><Icons.Play /></span>
-            开始游戏
+            Start
           </button>
           <button onClick={endGame} disabled={gameStatus !== 'playing'}
                   className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors">
             <span className="w-5 h-5"><Icons.Square /></span>
-            结束游戏
+            End
           </button>
         </div>
         <div className="grid grid-cols-1 gap-3">
           <button onClick={() => {
                     if (gameStatus === 'playing' || gameStatus === 'ended') {
-                      if (!confirm('确定要重置吗？当前数据将被清空。')) return
+                      if (!confirm('Are you sure you want to reset? All current data will be cleared.')) return
                     }
                     resetGame()
                   }}
                   className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center gap-2 transition-colors">
             <span className="w-5 h-5"><Icons.Trash2 /></span>
-            重置
+            Reset
           </button>
         </div>
       </div>
     </div>
   )
 }
-
-

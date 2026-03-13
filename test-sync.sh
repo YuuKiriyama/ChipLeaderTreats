@@ -1,24 +1,24 @@
 #!/bin/bash
 
 echo "======================================"
-echo "  测试多设备数据同步"
+echo "  Test Multi-Device Data Sync"
 echo "======================================"
 echo ""
 
 API_BASE="http://localhost:3001/api"
 
-echo "1. 检查服务器状态..."
+echo "1. Checking server status..."
 curl -s "${API_BASE}/health" | python3 -m json.tool
 echo ""
 
-echo "2. 获取当前历史记录..."
+echo "2. Getting current history..."
 curl -s "${API_BASE}/history" | python3 -m json.tool
 echo ""
 
-echo "3. 添加测试游戏记录..."
+echo "3. Adding test game record..."
 TEST_GAME='{
   "id": 9999999999999,
-  "gameName": "测试同步游戏",
+  "gameName": "Test Sync Game",
   "date": "'$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)'",
   "smallBlind": 1,
   "bigBlind": 2,
@@ -30,44 +30,44 @@ TEST_GAME='{
   "players": [
     {
       "id": 9999999999998,
-      "name": "测试玩家A",
+      "name": "Test Player A",
       "buyIns": 1,
       "endChips": 150,
       "profit": 50,
       "position": 1,
-      "notes": "测试数据"
+      "notes": "Test data"
     },
     {
       "id": 9999999999997,
-      "name": "测试玩家B", 
+      "name": "Test Player B", 
       "buyIns": 1,
       "endChips": 50,
       "profit": -50,
       "position": 2,
-      "notes": "测试数据"
+      "notes": "Test data"
     }
   ]
 }'
 
-echo "添加测试游戏..."
+echo "Adding test game..."
 curl -s -X POST "${API_BASE}/history" \
   -H "Content-Type: application/json" \
   -d "$TEST_GAME" | python3 -m json.tool
 echo ""
 
-echo "4. 验证数据是否已保存..."
+echo "4. Verifying data was saved..."
 curl -s "${API_BASE}/history" | python3 -m json.tool
 echo ""
 
-echo "5. 测试新API接口..."
-echo "获取玩家列表:"
+echo "5. Testing new API endpoints..."
+echo "Get player list:"
 curl -s "${API_BASE}/players" | python3 -m json.tool
 echo ""
 
-echo "获取游戏列表:"
+echo "Get game list:"
 curl -s "${API_BASE}/games" | python3 -m json.tool
 echo ""
 
 echo "======================================"
-echo "  测试完成"
+echo "  Test complete"
 echo "======================================"

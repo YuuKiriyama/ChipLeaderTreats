@@ -1,26 +1,25 @@
 #!/bin/bash
 
-# 获取脚本所在目录
+# Get script directory
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
 
-# 清屏
+# Clear screen
 clear
 
 echo "======================================"
-echo "  德州扑克积分统计系统 - 后端服务器"
+echo "  ChipLeaderTreats - Backend Server"
 echo "======================================"
 echo ""
-echo "正在启动后端服务器..."
+echo "Starting backend server..."
 echo ""
 
-# 检查node_modules是否存在
+# Check if node_modules exists
 if [ ! -d "node_modules" ]; then
-    echo "⚠️  首次运行需要安装依赖..."
+    echo "⚠️  First run - installing dependencies..."
     npm install
     echo ""
 fi
 
-# 启动后端服务器
+# Start backend server
 npm start
-

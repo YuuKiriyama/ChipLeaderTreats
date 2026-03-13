@@ -5,7 +5,6 @@ import { calculateProfitLoss, formatDuration } from '../utils/helpers';
 function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayerDetail }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
-  // 获取所有玩家名称
   const getAllPlayerNames = () => {
     const names = new Set();
     history.forEach(game => {
@@ -16,14 +15,12 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
     return Array.from(names).sort();
   };
 
-  // 获取玩家历史记录
   const getPlayerHistory = (playerName) => {
     return history
       .filter(game => game.players.some(p => p.name === playerName))
       .reverse();
   };
 
-  // 计算玩家统计
   const getPlayerStats = (playerName) => {
     const playerGames = history.filter(game => 
       game.players.some(p => p.name === playerName)
@@ -51,7 +48,6 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
     const gamesPlayed = playerGames.length;
     const avgProfit = gamesPlayed > 0 ? (totalProfit / gamesPlayed).toFixed(2) : '0.00';
     const avgProfitBB = gamesPlayed > 0 ? (totalProfitBB / gamesPlayed).toFixed(1) : '0.0';
-    // 精确到分钟计算每小时盈利：总盈利 * 60 / 总分钟数
     const hourlyProfit = totalMinutes > 0 ? (totalProfit * 60 / totalMinutes).toFixed(2) : '0.00';
     const hourlyBB = totalMinutes > 0 ? (totalProfitBB * 60 / totalMinutes).toFixed(1) : '0.0';
 
@@ -71,16 +67,15 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
       {history.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <span className="w-16 h-16 mx-auto mb-4 opacity-50 inline-block"><Icons.TrendingUp /></span>
-          <p>暂无历史记录</p>
+          <p>No history yet</p>
         </div>
       ) : (
         <div>
-          {/* 收藏玩家列表 */}
           {favorites.length > 0 && (
             <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-3">
                 <span className="w-4 h-4 text-yellow-500 fill-yellow-500"><Icons.Star /></span>
-                收藏的玩家
+                Favorite Players
               </h3>
               <div className="flex flex-wrap gap-2">
                 {favorites.map(name => (
@@ -97,10 +92,9 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
             </div>
           )}
 
-          {/* 玩家选择 */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              选择玩家查看详细记录
+              Select a player for detailed records
             </label>
             <select
               value={selectedPlayer || ''}
@@ -110,41 +104,40 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
             >
-              <option value="">-- 查看所有游戏 --</option>
+              <option value="">-- View All Games --</option>
               {getAllPlayerNames().map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>
           </div>
 
-          {/* 玩家统计 */}
           {selectedPlayer && (
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg mb-6 border border-green-200">
-              <h3 className="text-xl font-bold mb-4 text-green-800">{selectedPlayer} 的统计数据</h3>
+              <h3 className="text-xl font-bold mb-4 text-green-800">{selectedPlayer}'s Stats</h3>
               {(() => {
                 const stats = getPlayerStats(selectedPlayer);
                 return (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="bg-white p-3 rounded-lg shadow">
-                      <p className="text-xs text-gray-600 mb-1">游戏场次</p>
+                      <p className="text-xs text-gray-600 mb-1">Games Played</p>
                       <p className="text-xl font-bold text-gray-800">{stats.gamesPlayed}</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow">
-                      <p className="text-xs text-gray-600 mb-1">总盈亏</p>
+                      <p className="text-xs text-gray-600 mb-1">Total P/L</p>
                       <p className={`text-xl font-bold ${parseFloat(stats.totalProfit) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         ${stats.totalProfit}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">{stats.totalProfitBB} BB</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow">
-                      <p className="text-xs text-gray-600 mb-1">平均每局</p>
+                      <p className="text-xs text-gray-600 mb-1">Avg per Game</p>
                       <p className={`text-xl font-bold ${parseFloat(stats.avgProfit) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         ${stats.avgProfit}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">{stats.avgProfitBB} BB</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow">
-                      <p className="text-xs text-gray-600 mb-1">每小时盈亏</p>
+                      <p className="text-xs text-gray-600 mb-1">Hourly P/L</p>
                       <p className={`text-xl font-bold ${parseFloat(stats.hourlyProfit) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         ${stats.hourlyProfit}
                       </p>
@@ -156,7 +149,6 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
             </div>
           )}
 
-          {/* 游戏历史列表 */}
           <div className="space-y-4">
             {(selectedPlayer ? getPlayerHistory(selectedPlayer) : [...history].reverse()).map((game) => (
               <div key={game.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
@@ -166,7 +158,7 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
                     <div className="flex gap-4 text-sm text-gray-600 mt-1">
                       <span className="flex items-center gap-3">
                         <span className="w-4 h-4"><Icons.Calendar /></span>
-                        {new Date(game.date).toLocaleDateString('zh-CN')}
+                        {new Date(game.date).toLocaleDateString('en-US')}
                       </span>
                       <span className="flex items-center gap-3">
                         <span className="w-4 h-4"><Icons.Clock /></span>
@@ -175,7 +167,7 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-gray-600">盲注</div>
+                    <div className="text-sm text-gray-600">Blinds</div>
                     <div className="font-semibold">{game.smallBlind}/{game.bigBlind}</div>
                     <div className="text-xs text-gray-500 mt-1">
                       (${((game.smallBlind || 0) / (game.chipValue || 1)).toFixed(2)}/${((game.bigBlind || 0) / (game.chipValue || 1)).toFixed(2)})
@@ -187,9 +179,9 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="px-3 py-2 text-left">玩家</th>
-                        <th className="px-3 py-2 text-right">盈亏$</th>
-                        <th className="px-3 py-2 text-right">盈亏BB</th>
+                        <th className="px-3 py-2 text-left">Player</th>
+                        <th className="px-3 py-2 text-right">P/L $</th>
+                        <th className="px-3 py-2 text-right">P/L BB</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -234,14 +226,13 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
                   </table>
                 </div>
 
-                {/* 删除按钮 */}
                 <div className="mt-3 pt-3 border-t border-gray-200">
                   <button
                     onClick={() => deleteGame(game.id)}
                     className="text-sm text-red-600 hover:text-red-800 flex items-center gap-3"
                   >
                     <span className="w-4 h-4"><Icons.Trash2 /></span>
-                    删除此记录
+                    Delete Record
                   </button>
                 </div>
               </div>
@@ -254,4 +245,3 @@ function History({ history, favorites, toggleFavorite, deleteGame, setViewPlayer
 }
 
 export default History;
-

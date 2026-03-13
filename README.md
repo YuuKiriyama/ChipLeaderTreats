@@ -1,353 +1,353 @@
-# 德州扑克积分统计系统 (CrisCL) v0.1.1
+# ChipLeaderTreats v0.1.1
 
-一个现代化的德州扑克游戏数据统计Web应用，采用前后端分离架构，支持多设备访问。
+A modern Texas Hold'em poker game data statistics web application with a separated frontend-backend architecture, supporting multi-device access.
 
-## ✨ 功能特性
+## ✨ Features
 
-### 核心功能
-- 🎮 **游戏记录管理** - 开始、结束、保存、舍弃游戏
-- 📊 **玩家盈亏统计** - 筹码、现金、BB统计
-- 📈 **历史记录查询** - 完整的游戏历史和筛选
-- 👤 **玩家详情分析** - 个人统计数据和趋势
-- ⭐ **收藏玩家功能** - 快速访问常用玩家
-- ⚖️ **账目平衡检查** - 自动验证数据一致性
+### Core Features
+- 🎮 **Game Record Management** - Start, end, save, discard games
+- 📊 **Player Profit/Loss Statistics** - Chips, cash, BB statistics
+- 📈 **History Query** - Complete game history and filtering
+- 👤 **Player Detail Analysis** - Individual statistics and trends
+- ⭐ **Favorite Players** - Quick access to frequently used players
+- ⚖️ **Balance Verification** - Automatic data consistency validation
 
-### v0.1.1 新增功能
-- 💾 **游戏状态自动保存** - 刷新页面不丢失进度
-- 🗑️ **舍弃游戏功能** - 不保存当前游戏数据
-- 🎯 **精确时间计算** - 按分钟计算每小时盈利
-- 📱 **移动端优化** - 竖屏显示优化，按钮布局改进
-- ➕➖ **手数灵活输入** - 支持0和负数（卸码场景）
-- 🎨 **UI细节优化** - 图标文字间距、输入框宽度调整
-- 🔄 **小盲大盲验证** - 失焦时验证避免输入干扰
+### v0.1.1 New Features
+- 💾 **Auto-save Game State** - Progress preserved on page refresh
+- 🗑️ **Discard Game** - Do not save current game data
+- 🎯 **Precise Time Calculation** - Per-minute hourly profit calculation
+- 📱 **Mobile Optimization** - Portrait layout optimization, improved button layout
+- ➕➖ **Flexible Hand Count Input** - Supports 0 and negative numbers (chip-off scenarios)
+- 🎨 **UI Detail Refinements** - Icon-text spacing, input field width adjustments
+- 🔄 **Small Blind/Big Blind Validation** - Validation on blur to avoid input interference
 
-### 通用特性
-- 📱 **响应式设计** - 支持手机、平板、PC
-- 🔄 **实时数据同步** - 多设备数据共享
-- 🖥️ **跨平台脚本** - macOS和Windows双平台支持
+### General Features
+- 📱 **Responsive Design** - Supports mobile, tablet, and PC
+- 🔄 **Real-time Data Sync** - Multi-device data sharing
+- 🖥️ **Cross-platform Scripts** - macOS and Windows support
 
-## 🏗️ 技术架构
+## 🏗️ Technical Architecture
 
-### 前端技术栈
-- **React 18** - 现代化UI框架
-- **Vite** - 快速构建工具
-- **Tailwind CSS** - 实用优先的CSS框架
-- **localStorage** - 游戏状态持久化
+### Frontend Stack
+- **React 18** - Modern UI framework
+- **Vite** - Fast build tool
+- **Tailwind CSS** - Utility-first CSS framework
+- **localStorage** - Game state persistence
 
-### 后端技术栈
-- **Node.js** - JavaScript运行环境
-- **Express** - Web应用框架
-- **JSON文件** - 轻量级数据存储
-- **CORS** - 跨域资源共享
+### Backend Stack
+- **Node.js** - JavaScript runtime
+- **Express** - Web application framework
+- **JSON Files** - Lightweight data storage
+- **CORS** - Cross-origin resource sharing
 
-## 📁 项目结构
+## 📁 Project Structure
 
 ```
 CrisCL/
-├── frontend/                    # 前端应用
+├── frontend/                    # Frontend application
 │   ├── src/
-│   │   ├── components/          # React组件
-│   │   │   ├── CurrentGame.jsx  # 当前游戏页面
-│   │   │   ├── History.jsx      # 历史记录页面
-│   │   │   ├── PlayerDetail.jsx # 玩家详情页面
-│   │   │   └── Icons.jsx        # SVG图标组件
-│   │   ├── utils/               # 工具函数
-│   │   │   ├── storage.js       # API存储封装
-│   │   │   └── helpers.js       # 辅助函数
-│   │   ├── App.jsx              # 主应用组件
-│   │   ├── main.jsx             # 应用入口
-│   │   └── index.css            # 全局样式
-│   ├── 启动开发服务器.command    # macOS启动脚本
-│   └── 启动开发服务器.bat        # Windows启动脚本
+│   │   ├── components/          # React components
+│   │   │   ├── CurrentGame.jsx  # Current game page
+│   │   │   ├── History.jsx      # History page
+│   │   │   ├── PlayerDetail.jsx # Player detail page
+│   │   │   └── Icons.jsx        # SVG icon components
+│   │   ├── utils/               # Utility functions
+│   │   │   ├── storage.js       # API storage wrapper
+│   │   │   └── helpers.js       # Helper functions
+│   │   ├── App.jsx              # Main app component
+│   │   ├── main.jsx             # App entry point
+│   │   └── index.css            # Global styles
+│   ├── start-dev.command          # macOS startup script
+│   └── start-dev.bat              # Windows startup script
 │
-├── backend/                     # 后端服务
-│   ├── data/                    # 数据存储
-│   │   ├── games.json           # 游戏历史记录
-│   │   ├── gamePlayers.json     # 游戏玩家关联
-│   │   ├── players.json         # 玩家数据
-│   │   └── poker-favorites.json # 收藏玩家
-│   ├── server.js                # Express服务器
-│   ├── dataStore.js             # 数据存储模块
-│   ├── 启动后端服务器.command    # macOS启动脚本
-│   └── 启动后端服务器.bat        # Windows启动脚本
+├── backend/                     # Backend service
+│   ├── data/                    # Data storage
+│   │   ├── games.json           # Game history
+│   │   ├── gamePlayers.json     # Game-player associations
+│   │   ├── players.json         # Player data
+│   │   └── poker-favorites.json # Favorite players
+│   ├── server.js                # Express server
+│   ├── dataStore.js             # Data store module
+│   ├── start-server.command       # macOS startup script
+│   └── start-server.bat           # Windows startup script
 │
-├── 启动全部服务.command          # macOS一键启动
-├── 启动全部服务.bat              # Windows一键启动
-├── 停止所有服务.command          # macOS停止服务
-├── 停止所有服务.bat              # Windows停止服务
-├── 检查服务状态.command          # macOS状态检查
-├── 检查服务状态.bat              # Windows状态检查
-└── README.md                    # 项目文档
+├── start-all.command              # macOS one-click startup
+├── start-all.bat                  # Windows one-click startup
+├── stop-all.command               # macOS stop services
+├── stop-all.bat                   # Windows stop services
+├── check-status.command           # macOS status check
+├── check-status.bat               # Windows status check
+└── README.md                    # Project documentation
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
-- Node.js 18+ 
-- npm 或 yarn
+### Requirements
+- Node.js 18+
+- npm or yarn
 
-### 方式一：一键启动（推荐）
+### Option 1: One-Click Startup (Recommended)
 
-#### macOS 用户
-在 Finder 中双击 `启动全部服务.command`
+#### macOS Users
+Double-click `start-all.command` in Finder
 
-#### Windows 用户
-在文件资源管理器中双击 `启动全部服务.bat`
+#### Windows Users
+Double-click `start-all.bat` in File Explorer
 
-系统会自动：
-1. 检查并安装依赖
-2. 启动后端服务器（端口3001）
-3. 启动前端服务器（端口3000）
-4. 显示访问地址（包括手机访问地址）
+The system will automatically:
+1. Check and install dependencies
+2. Start backend server (port 3001)
+3. Start frontend server (port 3000)
+4. Display access URLs (including mobile access URL)
 
-### 方式二：分别启动
+### Option 2: Manual Startup
 
-**启动后端：**
+**Start Backend:**
 ```bash
 cd backend
-npm install  # 首次运行
+npm install  # First run only
 npm start
 ```
 
-**启动前端：**
+**Start Frontend:**
 ```bash
 cd frontend
-npm install  # 首次运行
+npm install  # First run only
 npm run dev
 ```
 
-### 访问应用
+### Access the App
 
-- **本机访问**：http://localhost:3000
-- **手机访问**：http://[你的电脑IP]:3000（需在同一WiFi）
+- **Local**: http://localhost:3000
+- **Mobile**: http://[your-computer-IP]:3000 (same WiFi required)
 
-## 🎮 使用指南
+## 🎮 User Guide
 
-### 当前游戏页面
+### Current Game Page
 
-#### 1. 配置游戏
-- 游戏名称自动生成（格式：MM/DD/YY 周几）
-- 设置小盲/大盲（支持失焦验证）
-- 设置每手Buy-in筹码量
-- 设置筹码汇率（多少筹码=1$）
+#### 1. Configure Game
+- Game name auto-generated (format: MM/DD/YY Day)
+- Set small blind/big blind (blur validation supported)
+- Set buy-in chips per hand
+- Set chip exchange rate (chips = $1)
 
-#### 2. 添加玩家
-- 输入玩家姓名
-- 设置手数（支持0和负数，负数表示卸码）
-- 使用加减按钮快速调整手数
+#### 2. Add Players
+- Enter player name
+- Set hand count (supports 0 and negative numbers for chip-off)
+- Use +/- buttons for quick hand count adjustment
 
-#### 3. 游戏流程
-- **开始游戏**：记录开始时间，启动计时器
-- **进行中**：更新玩家最终筹码数，实时查看盈亏
-- **结束游戏**：记录结束时间
-- **保存游戏**：确认账目平衡后保存到历史记录
-- **舍弃游戏**：不保存当前游戏，直接重置
+#### 3. Game Flow
+- **Start Game**: Record start time, start timer
+- **In Progress**: Update player final chip count, view profit/loss in real-time
+- **End Game**: Record end time
+- **Save Game**: Save to history after balance verification
+- **Discard Game**: Do not save current game, reset directly
 
-#### 4. 自动保存
-- 游戏进行中自动保存状态到 localStorage
-- 刷新页面或关闭浏览器后可恢复
-- 保存或舍弃游戏后自动清除临时状态
+#### 4. Auto-save
+- Game state auto-saved to localStorage during play
+- Recoverable after page refresh or browser close
+- Temporary state cleared after save or discard
 
-### 历史记录页面
+### History Page
 
-1. **查看所有游戏** - 显示完整的游戏历史
-2. **按玩家筛选** - 查看特定玩家的记录
-3. **收藏玩家** - 点击星标收藏常用玩家
-4. **查看详情** - 点击玩家姓名查看统计数据
-5. **统计数据** - 总盈亏、平均每局、每小时盈利（精确到分钟）
-6. **删除记录** - 删除不需要的游戏记录
+1. **View All Games** - Display complete game history
+2. **Filter by Player** - View records for specific players
+3. **Favorite Players** - Click star to favorite frequently used players
+4. **View Details** - Click player name for statistics
+5. **Statistics** - Total profit/loss, average per game, hourly profit (minute precision)
+6. **Delete Records** - Remove unwanted game records
 
-### 玩家详情页面
+### Player Detail Page
 
-- 查看玩家所有历史记录
-- 统计总盈亏、平均表现
-- 每小时盈利率（精确计算）
-- 游戏场次和时长统计
+- View all player history
+- Total profit/loss, average performance
+- Hourly profit rate (precise calculation)
+- Game count and duration statistics
 
-## 💾 数据管理
+## 💾 Data Management
 
-### 数据存储
-- **位置**: `backend/data/` 目录
-- **格式**: JSON文件
-- **持久化**: 
-  - 历史记录存储在后端
-  - 当前游戏状态存储在 localStorage
+### Data Storage
+- **Location**: `backend/data/` directory
+- **Format**: JSON files
+- **Persistence**:
+  - History stored on backend
+  - Current game state stored in localStorage
 
-### 数据备份
+### Data Backup
 ```bash
-# 备份数据
+# Backup data
 cp -r backend/data backend/data_backup_$(date +%Y%m%d)
 
-# 恢复数据
+# Restore data
 cp -r backend/data_backup_YYYYMMDD/* backend/data/
 ```
 
-## 🔧 服务管理
+## 🔧 Service Management
 
-### 检查服务状态
-- **macOS**: 双击 `检查服务状态.command`
-- **Windows**: 双击 `检查服务状态.bat`
+### Check Service Status
+- **macOS**: Double-click `check-status.command`
+- **Windows**: Double-click `check-status.bat`
 
-### 停止所有服务
-- **macOS**: 双击 `停止所有服务.command`
-- **Windows**: 双击 `停止所有服务.bat`
+### Stop All Services
+- **macOS**: Double-click `stop-all.command`
+- **Windows**: Double-click `stop-all.bat`
 
-### 查看日志
+### View Logs
 ```bash
-# 查看后端日志
+# Backend logs
 tail -f backend.log
 
-# 查看前端日志
+# Frontend logs
 tail -f frontend.log
 ```
 
-## 📡 API接口
+## 📡 API
 
-### 基础信息
-- **后端地址**: `http://localhost:3001/api`
-- **前端地址**: `http://localhost:3000`
-- **数据格式**: JSON
+### Basic Info
+- **Backend URL**: `http://localhost:3001/api`
+- **Frontend URL**: `http://localhost:3000`
+- **Data Format**: JSON
 
-### 主要接口
+### Main Endpoints
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/health | 健康检查 |
-| GET | /api/storage/:key | 获取存储数据 |
-| POST | /api/storage | 保存存储数据 |
-| DELETE | /api/storage/:key | 删除存储数据 |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/health | Health check |
+| GET | /api/storage/:key | Get stored data |
+| POST | /api/storage | Save data |
+| DELETE | /api/storage/:key | Delete stored data |
 
-## 📱 移动端使用
+## 📱 Mobile Usage
 
-### 连接方式
-1. 确保手机和电脑在同一WiFi网络
-2. 启动服务后查看终端显示的IP地址
-3. 在手机浏览器访问：`http://[IP地址]:3000`
+### Connection
+1. Ensure phone and computer are on the same WiFi network
+2. Check the IP address shown in terminal after starting services
+3. Open in mobile browser: `http://[IP-address]:3000`
 
-### 移动端优化
-- 竖屏布局优化
-- 标题信息两行显示
-- 配置项对齐美观
-- 按钮布局合理（开始/结束一行，保存/舍弃一行）
-- 手数控件带加减按钮
-- 最终码量输入框宽度优化
+### Mobile Optimizations
+- Portrait layout optimization
+- Two-line title display
+- Aligned configuration items
+- Reasonable button layout (Start/End on one row, Save/Discard on another)
+- Hand count controls with +/- buttons
+- Optimized final chip count input width
 
-## 🛠️ 开发指南
+## 🛠️ Development Guide
 
-### 开发命令
+### Development Commands
 ```bash
-# 前端开发
+# Frontend development
 cd frontend
-npm run dev          # 启动开发服务器
-npm run build        # 构建生产版本
-npm run preview      # 预览生产版本
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
 
-# 后端开发
+# Backend development
 cd backend
-npm start            # 启动服务器
+npm start            # Start server
 ```
 
-### 代码结构
-- **组件化**: 每个功能独立为React组件
-- **模块化**: 工具函数和API调用分离
-- **响应式**: 使用Tailwind CSS实现
-- **类型安全**: 使用现代JavaScript特性
+### Code Structure
+- **Component-based**: Each feature as independent React component
+- **Modular**: Utility functions and API calls separated
+- **Responsive**: Implemented with Tailwind CSS
+- **Type-safe**: Modern JavaScript features
 
-## 🔍 故障排查
+## 🔍 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-**1. 服务启动失败**
-- 检查端口3000和3001是否被占用
-- 确认Node.js版本 >= 18
-- 重新安装依赖：`rm -rf node_modules && npm install`
+**1. Service fails to start**
+- Check if ports 3000 and 3001 are in use
+- Verify Node.js version >= 18
+- Reinstall dependencies: `rm -rf node_modules && npm install`
 
-**2. 前端无法连接后端**
-- 确认后端服务正常运行（检查服务状态）
-- 检查防火墙设置
-- 查看浏览器控制台错误信息
+**2. Frontend cannot connect to backend**
+- Confirm backend is running (check service status)
+- Check firewall settings
+- Check browser console for errors
 
-**3. 刷新后游戏状态丢失**
-- 检查浏览器是否支持 localStorage
-- 查看浏览器控制台是否有错误
-- 确认游戏已经开始（未开始的游戏不会保存）
+**3. Game state lost after refresh**
+- Check if browser supports localStorage
+- Check browser console for errors
+- Confirm game has started (unstarted games are not saved)
 
-**4. 移动端无法访问**
-- 确认设备在同一WiFi网络
-- 检查电脑防火墙设置
-- 使用正确的IP地址（非localhost）
-- 尝试重启路由器
+**4. Mobile cannot access**
+- Confirm devices on same WiFi network
+- Check computer firewall settings
+- Use correct IP address (not localhost)
+- Try restarting router
 
-**5. macOS 无法运行 .command 文件**
+**5. macOS cannot run .command files**
 ```bash
-# 添加执行权限
+# Add execute permission
 chmod +x *.command
 chmod +x backend/*.command
 chmod +x frontend/*.command
 ```
 
-## 📈 版本历史
+## 📈 Version History
 
 ### v0.1.1 (2025-10-29)
-- ✅ **游戏状态自动保存** - 刷新页面不丢失数据
-- ✅ **舍弃游戏功能** - 支持不保存直接重置
-- ✅ **每小时盈利精确计算** - 按分钟计算更准确
-- ✅ **移动端布局优化** - 竖屏显示更友好
-- ✅ **小盲大盲验证改进** - 失焦时验证
-- ✅ **手数支持负数** - 适应卸码场景
-- ✅ **UI细节优化** - 图标间距、输入框宽度
-- ✅ **跨平台脚本** - Windows .bat 文件支持
-- ✅ **按钮布局优化** - 移动端两行显示
+- ✅ **Auto-save game state** - No data loss on page refresh
+- ✅ **Discard game** - Support reset without saving
+- ✅ **Precise hourly profit calculation** - Minute-based calculation
+- ✅ **Mobile layout optimization** - Friendlier portrait display
+- ✅ **Small/big blind validation** - Validation on blur
+- ✅ **Negative hand count support** - For chip-off scenarios
+- ✅ **UI detail refinements** - Icon spacing, input width
+- ✅ **Cross-platform scripts** - Windows .bat file support
+- ✅ **Button layout optimization** - Two-row display on mobile
 
 ### v0.0.1 (2025-10-28)
-- ✅ 初始版本发布
-- ✅ 前后端分离架构
-- ✅ 完整的游戏记录功能
-- ✅ 玩家统计和分析
-- ✅ 响应式设计
-- ✅ 多设备数据同步
+- ✅ Initial release
+- ✅ Separated frontend-backend architecture
+- ✅ Complete game record functionality
+- ✅ Player statistics and analysis
+- ✅ Responsive design
+- ✅ Multi-device data sync
 
-## 🎯 后续计划
+## 🎯 Roadmap
 
-- [ ] 数据可视化图表
-- [ ] 导出Excel报表
-- [ ] 多房间支持
-- [ ] 用户账号系统
-- [ ] 实时对局同步
-- [ ] PWA离线支持
+- [ ] Data visualization charts
+- [ ] Excel report export
+- [ ] Multi-room support
+- [ ] User account system
+- [ ] Real-time game sync
+- [ ] PWA offline support
 
-## 📦 Lite 版本（无需后端，PWA）
+## 📦 Lite Version (No Backend, PWA)
 
-已新增 `apps/lite`：
+Added `apps/lite`:
 
-- 特性：本地运行、可添加到主屏幕、离线可用；仅支持单局临时记录（不含历史存储）
-- 功能：一人创建游戏，记录所有玩家的买入手数与最终码量，自动统计盈亏（筹码与美元）
-- 启动：
+- **Features**: Local run, add to home screen, offline capable; single-session temporary records only (no history storage)
+- **Functionality**: One person creates game, records all players' buy-in count and final chips, auto-calculates profit/loss (chips and USD)
+- **Start**:
   ```bash
   cd apps/lite
   npm install
-  npm run dev        # 开发
-  npm run build      # 构建
-  npm run preview    # 预览（默认5174端口）
+  npm run dev        # Development
+  npm run build      # Build
+  npm run preview    # Preview (default port 5174)
   ```
-  预览地址：`http://localhost:5174`
+  Preview URL: `http://localhost:5174`
 
-移动端可通过浏览器菜单选择“添加到主屏幕”安装为App图标，首次打开后支持离线使用。
+Mobile: Use browser menu "Add to Home Screen" to install as app icon; supports offline use after first open.
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交Issue和Pull Request！
+Issues and Pull Requests are welcome!
 
-## 📄 许可证
+## 📄 License
 
 MIT License
 
-## 📚 相关文档
+## 📚 Related Documentation
 
-- **后端文档**: [backend/README.md](backend/README.md)
-- **前端文档**: [frontend/README.md](frontend/README.md)
+- **Backend**: [backend/README.md](backend/README.md)
+- **Frontend**: [frontend/README.md](frontend/README.md)
 
 ---
 
-**德州扑克积分统计系统 v0.1.1**  
-*让每一局游戏都有数据可循* 🃏
+**ChipLeaderTreats v0.1.1**  
+*Data for every game* 🃏

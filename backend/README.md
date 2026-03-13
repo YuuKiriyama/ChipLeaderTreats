@@ -1,99 +1,99 @@
-# 德州扑克积分统计系统 - 后端 v0.1.1
+# ChipLeaderTreats - Backend v0.1.1
 
-基于Node.js + Express的后端API服务，提供德州扑克游戏数据的管理和存储功能。
+Node.js + Express backend API service providing poker game data management and storage.
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 安装依赖
+### Install Dependencies
 ```bash
 npm install
 ```
 
-### 启动服务器
+### Start Server
 ```bash
 npm start
 ```
-服务将在 `http://localhost:3001` 启动
+Server runs at `http://localhost:3001`
 
-### 测试API
+### Test API
 ```bash
 ./test-api.sh
 ```
 
-## 🏗️ 技术栈
+## 🏗️ Tech Stack
 
-- **Node.js** - JavaScript运行环境
-- **Express** - Web应用框架
-- **JSON文件** - 轻量级数据存储
-- **CORS** - 跨域资源共享
+- **Node.js** - JavaScript runtime
+- **Express** - Web application framework
+- **JSON Files** - Lightweight data storage
+- **CORS** - Cross-origin resource sharing
 
-## 📁 目录结构
+## 📁 Directory Structure
 
 ```
 backend/
-├── data/                   # 数据存储
-│   ├── games.json          # 游戏历史记录
-│   ├── players.json        # 玩家数据
-│   └── poker-favorites.json # 收藏玩家
-├── server.js               # Express服务器主文件
-├── dataStore.js            # 数据存储模块
-├── package.json            # 依赖配置
-├── test-api.sh             # API测试脚本
-└── 启动后端服务器.command   # 启动脚本
+├── data/                   # Data storage
+│   ├── games.json          # Game history
+│   ├── players.json        # Player data
+│   └── poker-favorites.json # Favorite players
+├── server.js               # Express server main file
+├── dataStore.js            # Data store module
+├── package.json            # Dependencies config
+├── test-api.sh             # API test script
+└── start-server.command     # Startup script
 ```
 
-## 📡 API接口
+## 📡 API Endpoints
 
-### 基础信息
-- **服务地址**: `http://localhost:3001`
-- **API前缀**: `/api`
-- **数据格式**: JSON
-- **跨域支持**: 已配置CORS
+### Basic Info
+- **Service URL**: `http://localhost:3001`
+- **API Prefix**: `/api`
+- **Data Format**: JSON
+- **CORS**: Configured
 
-### 接口列表
+### Endpoint List
 
-| 方法 | 路径 | 说明 | 请求体 |
-|------|------|------|--------|
-| GET | /api/health | 健康检查 | - |
-| GET | /api/games | 获取游戏历史 | - |
-| POST | /api/games | 添加游戏记录 | Game对象 |
-| DELETE | /api/games/:id | 删除游戏记录 | - |
-| GET | /api/players | 获取玩家数据 | - |
-| PUT | /api/players | 更新玩家数据 | Players数组 |
-| GET | /api/favorites | 获取收藏列表 | - |
-| PUT | /api/favorites | 更新收藏列表 | Favorites数组 |
+| Method | Path | Description | Request Body |
+|--------|------|-------------|--------------|
+| GET | /api/health | Health check | - |
+| GET | /api/games | Get game history | - |
+| POST | /api/games | Add game record | Game object |
+| DELETE | /api/games/:id | Delete game record | - |
+| GET | /api/players | Get player data | - |
+| PUT | /api/players | Update player data | Players array |
+| GET | /api/favorites | Get favorites list | - |
+| PUT | /api/favorites | Update favorites list | Favorites array |
 
-### 响应格式
+### Response Format
 
-**成功响应:**
+**Success:**
 ```json
 {
   "success": true,
-  "data": { /* 数据内容 */ }
+  "data": { /* data content */ }
 }
 ```
 
-**错误响应:**
+**Error:**
 ```json
 {
   "success": false,
-  "error": "错误信息"
+  "error": "Error message"
 }
 ```
 
-## 💾 数据存储
+## 💾 Data Storage
 
-### 存储位置
-`data/` 目录下的JSON文件
+### Storage Location
+JSON files in `data/` directory
 
-### 数据文件
+### Data Files
 
-**games.json** - 游戏历史记录
+**games.json** - Game history
 ```json
 [
   {
     "id": 1698765432000,
-    "gameName": "10月27日周五",
+    "gameName": "10/27 Fri",
     "date": "2023-10-27T12:00:00.000Z",
     "smallBlind": 1,
     "bigBlind": 2,
@@ -102,7 +102,7 @@ backend/
     "sessionMinutes": 120,
     "players": [
       {
-        "name": "玩家A",
+        "name": "Player A",
         "buyInCount": 1,
         "finalChips": 250
       }
@@ -111,11 +111,11 @@ backend/
 ]
 ```
 
-**players.json** - 玩家数据
+**players.json** - Player data
 ```json
 [
   {
-    "name": "玩家A",
+    "name": "Player A",
     "totalGames": 5,
     "totalProfit": 150.50,
     "avgProfit": 30.10
@@ -123,43 +123,43 @@ backend/
 ]
 ```
 
-**poker-favorites.json** - 收藏玩家
+**poker-favorites.json** - Favorite players
 ```json
-["玩家A", "玩家B", "玩家C"]
+["Player A", "Player B", "Player C"]
 ```
 
-## 🔧 配置说明
+## 🔧 Configuration
 
-### 端口配置
+### Port Configuration
 ```javascript
 // server.js
-const PORT = 3001;  // 修改为所需端口
+const PORT = 3001;  // Change to desired port
 ```
 
-### CORS配置
+### CORS Configuration
 ```javascript
 // server.js
 app.use(cors({
-  origin: 'http://localhost:3000'  // 生产环境需要修改
+  origin: 'http://localhost:3000'  // Modify for production
 }));
 ```
 
-### 生产环境配置
+### Production Configuration
 
-1. **修改CORS来源**:
+1. **Modify CORS origin**:
 ```javascript
 app.use(cors({
   origin: 'https://your-domain.com'
 }));
 ```
 
-2. **添加环境变量**:
+2. **Add environment variables**:
 ```bash
 NODE_ENV=production
 PORT=3001
 ```
 
-3. **添加HTTPS支持**:
+3. **Add HTTPS support**:
 ```javascript
 const https = require('https');
 const fs = require('fs');
@@ -172,127 +172,127 @@ const options = {
 https.createServer(options, app).listen(PORT);
 ```
 
-## 🧪 测试
+## 🧪 Testing
 
-### API测试
+### API Testing
 ```bash
-# 使用测试脚本
+# Using test script
 ./test-api.sh
 
-# 手动测试
+# Manual testing
 curl http://localhost:3001/api/health
 curl http://localhost:3001/api/games
 curl http://localhost:3001/api/players
 curl http://localhost:3001/api/favorites
 ```
 
-### 测试用例
-- 健康检查接口
-- 数据CRUD操作
-- 错误处理
-- CORS跨域请求
+### Test Cases
+- Health check endpoint
+- Data CRUD operations
+- Error handling
+- CORS cross-origin requests
 
-## 🔍 故障排查
+## 🔍 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-**1. 端口被占用**
+**1. Port in use**
 ```bash
-# 检查端口使用情况
+# Check port usage
 lsof -i :3001
 
-# 杀死占用进程
+# Kill process
 kill -9 <PID>
 ```
 
-**2. 数据文件权限问题**
+**2. Data file permissions**
 ```bash
-# 检查文件权限
+# Check file permissions
 ls -la data/
 
-# 修改权限
+# Modify permissions
 chmod 644 data/*.json
 ```
 
-**3. CORS错误**
-- 检查CORS配置
-- 确认前端地址正确
-- 查看浏览器控制台错误
+**3. CORS errors**
+- Check CORS configuration
+- Confirm frontend URL is correct
+- Check browser console for errors
 
-**4. 数据没有保存**
-- 检查`data/`目录是否存在
-- 确认文件写入权限
-- 查看服务器日志
+**4. Data not saving**
+- Check if `data/` directory exists
+- Confirm file write permissions
+- Check server logs
 
-## 📊 性能优化
+## 📊 Performance Optimization
 
-### 当前优化
-- JSON文件轻量级存储
-- Express中间件优化
-- 错误处理机制
+### Current Optimizations
+- Lightweight JSON file storage
+- Express middleware optimization
+- Error handling mechanism
 
-### 未来优化
-- 添加数据缓存
-- 实现数据分页
-- 添加请求限流
-- 升级到数据库
+### Future Optimizations
+- Add data caching
+- Implement data pagination
+- Add request rate limiting
+- Upgrade to database
 
-## 🔐 安全考虑
+## 🔐 Security Considerations
 
-### 当前状态（开发环境）
-- ✅ CORS基本配置
-- ❌ 无身份验证
-- ❌ 无数据加密
-- ❌ 无输入验证
+### Current State (Development)
+- ✅ Basic CORS configuration
+- ❌ No authentication
+- ❌ No data encryption
+- ❌ No input validation
 
-### 生产环境建议
-1. **添加身份验证**: JWT或Session
-2. **输入验证**: 验证所有API输入
-3. **HTTPS**: 使用SSL证书
-4. **日志记录**: 记录所有操作
-5. **备份策略**: 定期备份数据
+### Production Recommendations
+1. **Add authentication**: JWT or Session
+2. **Input validation**: Validate all API inputs
+3. **HTTPS**: Use SSL certificate
+4. **Logging**: Log all operations
+5. **Backup strategy**: Regular data backups
 
-## 📈 可扩展性
+## 📈 Scalability
 
-### 短期扩展
-- [ ] 添加数据验证中间件
-- [ ] 实现API版本控制
-- [ ] 添加请求日志
-- [ ] 优化错误处理
+### Short-term
+- [ ] Add data validation middleware
+- [ ] Implement API versioning
+- [ ] Add request logging
+- [ ] Improve error handling
 
-### 中期扩展
-- [ ] 升级到数据库（MongoDB/PostgreSQL）
-- [ ] 添加用户认证系统
-- [ ] 实现数据分页
-- [ ] 添加缓存机制
+### Mid-term
+- [ ] Upgrade to database (MongoDB/PostgreSQL)
+- [ ] Add user authentication system
+- [ ] Implement data pagination
+- [ ] Add caching mechanism
 
-### 长期扩展
-- [ ] 微服务架构
-- [ ] 分布式部署
-- [ ] 实时同步（WebSocket）
-- [ ] 数据分析服务
+### Long-term
+- [ ] Microservices architecture
+- [ ] Distributed deployment
+- [ ] Real-time sync (WebSocket)
+- [ ] Data analytics service
 
-## 🔄 版本历史
+## 🔄 Version History
 
 ### v0.1.1
-- ✅ 支持游戏状态自动保存
-- ✅ 数据持久化优化
+- ✅ Game state auto-save support
+- ✅ Data persistence optimization
 
 ### v0.0.1
-- ✅ 初始版本发布
-- ✅ Express服务器
-- ✅ JSON文件存储
-- ✅ RESTful API设计
-- ✅ CORS跨域支持
-- ✅ 基础错误处理
+- ✅ Initial release
+- ✅ Express server
+- ✅ JSON file storage
+- ✅ RESTful API design
+- ✅ CORS support
+- ✅ Basic error handling
 
-## 📚 相关文档
+## 📚 Related Documentation
 
-- **项目主文档**: `../README.md`
-- **前端文档**: `../frontend/README.md`
-- **API测试**: `test-api.sh`
+- **Main project**: `../README.md`
+- **Frontend**: `../frontend/README.md`
+- **API testing**: `test-api.sh`
 
 ---
 
-**后端服务 v0.1.1**  
-*可靠的德州扑克数据管理API*
+**Backend Service v0.1.1**  
+*Reliable poker data management API*

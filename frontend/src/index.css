@@ -10,18 +10,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* iOS 安全区域支持 */
+  /* iOS safe area support */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 优化触摸体验 */
+/* Optimize touch experience */
 button, input, select {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 防止双击缩放 */
+/* Prevent double-tap zoom */
 * {
   touch-action: manipulation;
 }
-

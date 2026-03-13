@@ -17,7 +17,6 @@ export default function App() {
   const [buyIns, setBuyIns] = useState(1)
   
 
-  // 初始化恢复 & 默认生成名称
   useEffect(() => {
     const saved = localStorage.getItem('currentGameStateLite')
     if (saved) {
@@ -40,9 +39,6 @@ export default function App() {
     }
   }, [])
 
-  // Lite 不显示计时器
-
-  // 自动保存（Lite 专用 key）
   useEffect(() => {
     if (gameStatus !== 'notStarted') {
       const state = {
@@ -62,21 +58,21 @@ export default function App() {
   const handleSmallBlindChange = (value) => setSmallBlind(value === '' ? '' : parseInt(value))
   const handleSmallBlindBlur = () => {
     if (smallBlind && bigBlind && smallBlind > bigBlind) {
-      alert('小盲不能超过大盲')
+      alert('Small blind cannot exceed big blind')
       setSmallBlind(bigBlind)
     }
   }
   const handleBigBlindChange = (value) => setBigBlind(value === '' ? '' : parseInt(value))
   const handleBigBlindBlur = () => {
     if (smallBlind && bigBlind && bigBlind < smallBlind) {
-      alert('大盲不能低于小盲')
+      alert('Big blind cannot be less than small blind')
       setBigBlind(smallBlind)
     }
   }
 
   const startGame = () => {
-    if (!gameName.trim()) return alert('请先输入游戏名称')
-    if (!buyInChips || !chipValue || !smallBlind || !bigBlind) return alert('请填写完整的游戏配置')
+    if (!gameName.trim()) return alert('Please enter a game name first')
+    if (!buyInChips || !chipValue || !smallBlind || !bigBlind) return alert('Please fill in all game settings')
     if (gameStatus === 'notStarted') {
       setGameStatus('playing')
       setStartTime(new Date())
@@ -84,7 +80,7 @@ export default function App() {
     }
   }
   const endGame = () => {
-    if (players.length === 0) return alert('请至少添加一名玩家')
+    if (players.length === 0) return alert('Please add at least one player')
     if (gameStatus === 'playing') {
       setGameStatus('ended')
       setEndTime(new Date())
@@ -100,8 +96,8 @@ export default function App() {
   }
 
   const addPlayer = () => {
-    if (!playerName.trim()) return alert('请输入玩家姓名')
-    if (players.some(p => p.name === playerName.trim())) return alert('该玩家已存在，不能添加重名玩家')
+    if (!playerName.trim()) return alert('Please enter a player name')
+    if (players.some(p => p.name === playerName.trim())) return alert('This player already exists. Duplicate names are not allowed.')
     const newPlayer = { name: playerName.trim(), buyIns: buyIns || 1, endChips: '', id: Date.now() }
     setPlayers([...players, newPlayer])
     setPlayerName('')
@@ -111,7 +107,7 @@ export default function App() {
   const updatePlayerBuyIns = (playerId, value) => setPlayers(players.map(p => p.id === playerId ? { ...p, buyIns: value === '' ? 0 : parseInt(value) || 0 } : p))
   const updatePlayerEndChips = (playerId, value) => setPlayers(players.map(p => p.id === playerId ? { ...p, endChips: value === '' ? '' : parseInt(value) || 0 } : p))
 
-  const saveGame = () => alert('Lite 版本不支持保存到历史记录')
+  const saveGame = () => alert('Lite version does not support saving to history')
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,8 +117,7 @@ export default function App() {
             <div className="flex items-start gap-2 flex-shrink-0">
               <span className="w-6 h-6 mt-1"><Icons.DollarSign /></span>
               <div className="flex flex-col">
-                <h1 className="text-lg font-bold text-gray-800 leading-tight">CrisCL Lite</h1>
-                <h2 className="text-xs font-bold text-gray-600 leading-tight">我们Cris才是真正的CL</h2>
+                <h1 className="text-lg font-bold text-gray-800 leading-tight">ChipLeaderTreats Lite</h1>
               </div>
             </div>
           </div>
@@ -159,5 +154,3 @@ export default function App() {
     </div>
   )
 }
-
-

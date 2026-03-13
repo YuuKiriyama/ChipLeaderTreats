@@ -1,7 +1,7 @@
 {
   "name": "poker-tracker-backend",
   "version": "0.0.1",
-  "description": "德州扑克积分统计系统后端",
+  "description": "ChipLeaderTreats poker score tracker backend",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -13,4 +13,3 @@
     "cors": "^2.8.5"
   }
 }
-
