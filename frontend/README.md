@@ -1,166 +1,59 @@
-# ChipLeaderTreats - Frontend v0.1.1
+# ChipLeaderTreats — Frontend
 
-Modern frontend application built with React + Vite, providing the user interface for poker game data statistics.
+React single-page application for the P2P multiplayer poker score tracker.
 
-## 🚀 Quick Start
+## Quick Start
 
-### Install Dependencies
 ```bash
 npm install
+npm run dev       # Development server at http://localhost:3000
+npm run build     # Production build to dist/
+npm run preview   # Preview production build
 ```
 
-### Start Development Server
-```bash
-npm run dev
-```
-Access: `http://localhost:3000`
+## Tech Stack
 
-### Build for Production
-```bash
-npm run build
-```
+- **React 18** — UI framework with hooks for state management
+- **Vite** — Build tool and dev server
+- **Tailwind CSS** — Utility-first styling
+- **PeerJS** — WebRTC abstraction for peer-to-peer data channels
+- **qrcode.react** — QR code SVG generation
 
-### Preview Production Build
-```bash
-npm run preview
-```
+## Architecture
 
-## 🏗️ Tech Stack
+### P2P Layer (`src/peer/`)
 
-- **React 18** - UI framework
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling framework
-- **React Hooks** - State management
+- `PeerManager.js` — `HostPeerManager` and `GuestPeerManager` classes managing PeerJS connections, message routing, and reconnection
+- `MessageProtocol.js` — Defines message types (JOIN, REJOIN, STATE_UPDATE, etc.) and serialization
+- `PermissionGuard.js` — Validates guest actions server-side (on host) before applying state changes
 
-## 📁 Directory Structure
+### Views (`src/views/`)
 
-```
-src/
-├── components/          # React components
-│   ├── CurrentGame.jsx  # Current game page
-│   ├── History.jsx     # History page
-│   ├── PlayerDetail.jsx # Player detail page
-│   └── Icons.jsx       # SVG icon components
-├── utils/              # Utility functions
-│   ├── storage.js      # API storage wrapper
-│   └── helpers.js      # Helper functions
-├── App.jsx             # Main app component
-├── main.jsx            # App entry point
-└── index.css           # Global styles
-```
+- `HostView.jsx` — Full game management: name entry, QR code display, game config, player table, start/settle/save controls
+- `GuestView.jsx` — Join flow, read-only game view, own buy-in increase, final chips submission, reconnection
+- `HistoryView.jsx` — Browse and delete saved games with P/L breakdown
 
-## 🔧 Development Guide
+### Shared Components (`src/components/`)
 
-### Component Overview
+- `GameConfig.jsx` — Blinds, buy-in chips, chip rate inputs (blur-to-sync)
+- `PlayerTable.jsx` — Player list with buy-in controls, final chips input, P/L calculation, balance check
+- `Icons.jsx` — SVG icon components
 
-**App.jsx** - Main application component
-- State management (game data, history, player list)
-- View switching logic
+### Utils (`src/utils/`)
 
-**CurrentGame.jsx** - Current game page
-- Game configuration interface
-- Player management
-- Profit/loss calculation display
-- Game controls (Start/End/Save)
+- `localStorage.js` — All persistence: host game state, guest session, game history, stable peer ID, active role (sessionStorage)
+- `helpers.js` — Game name generation, duration formatting, P/L calculation, balance verification
 
-**History.jsx** - History page
-- History list
-- Player filtering
-- Statistics display
-- Favorite players management
+### Routing
 
-**PlayerDetail.jsx** - Player detail page
-- Individual player details
-- Historical game records
-- Statistics
+Hash-based routing in `App.jsx`:
+- `#/` — Home screen (create game, resume, history)
+- `#/join/:hostPeerId` — Guest join flow
+- `#/history` — Game history
 
-**Icons.jsx** - Icon components
-- All SVG icon components
-- Unified management and reuse
+## Key Design Decisions
 
-### Utility Functions
-
-**storage.js** - API storage wrapper
-- Backend API communication
-- Data persistence
-
-**helpers.js** - Helper functions
-- Date formatting
-- Profit/loss calculation
-- Duration calculation
-- Other common utilities
-
-## 📱 Mobile Support
-
-- Responsive design, adapts to various screen sizes
-- Touch operation support
-- Add to home screen for app-like experience
-
-## 🔗 API Integration
-
-Frontend communicates with backend via HTTP API:
-- **Backend URL**: `http://localhost:3001/api`
-- **Data Format**: JSON
-- **CORS**: Configured
-
-## 🎨 Styling Guide
-
-Tailwind CSS for styling:
-- Utility-first CSS framework
-- Responsive design
-- Component-based styles
-
-## 🐛 Common Issues
-
-### 1. Dev server fails to start
-```bash
-# Clear cache and retry
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### 2. Port in use
-Modify the port value in `vite.config.js`
-
-### 3. Mobile cannot access
-- Check firewall settings
-- Confirm same WiFi network
-- Try using local IP address
-
-### 4. Code changes not taking effect
-- Check if file is saved
-- Restart dev server
-- Clear browser cache
-
-## 📈 Build and Deploy
-
-### Build for Production
-```bash
-npm run build
-```
-Output to `dist/` directory
-
-### Deployment Options
-- **Static Hosting**: Netlify, Vercel, GitHub Pages
-- **CDN**: Cloudflare, AWS CloudFront
-- **Server**: Nginx, Apache
-
-## 🔄 Version History
-
-### v0.1.1
-- ✅ Auto-save game state (localStorage)
-- ✅ Mobile layout optimization
-- ✅ UI detail improvements
-- ✅ Input validation optimization
-
-### v0.0.1
-- ✅ Initial release
-- ✅ React 18 + Vite architecture
-- ✅ Tailwind CSS styling
-- ✅ Responsive design
-- ✅ Component-based development
-
----
-
-**Frontend v0.1.1**  
-*Modern poker statistics interface*
+- **Blur-to-sync inputs** — Config and chip inputs use local state during editing, only broadcast on blur to avoid sending partial data
+- **Delta-based buy-in updates** — Buy-in +/- buttons send deltas, computed inside `setGameState(prev => ...)` to prevent race conditions
+- **sessionStorage for role** — Tracks host/guest role per-tab to prevent UI confusion when testing with multiple tabs in the same browser
+- **Stable host Peer ID** — Stored in localStorage so guests can reconnect to the same host after browser restart
