@@ -1,6 +1,10 @@
 # Dependencies
 /node_modules
 
+# Removed directories (kept locally for reference)
+/backend/
+/apps/
+
 # Build output
 /dist
 /build
@@ -12,13 +16,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Editor
+# Editor / IDE
 .DS_Store
 *.swp
 *.swo
 *~
 .vscode/
 .idea/
+.cursor/
 
 # Environment variables
 .env
