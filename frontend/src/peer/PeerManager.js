@@ -1,6 +1,7 @@
 import Peer from 'peerjs';
 import { createMessage, parseMessage, HostMessage, GuestMessage } from './MessageProtocol';
 import { validateGuestAction } from './PermissionGuard';
+import { PEER_OPTIONS } from './peerConfig';
 
 function generateId(prefix = 'clt') {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -21,7 +22,7 @@ export class HostPeerManager {
 
   async start() {
     return new Promise((resolve, reject) => {
-      this.peer = new Peer(this.peerId);
+      this.peer = new Peer(this.peerId, PEER_OPTIONS);
 
       this.peer.on('open', (id) => {
         console.log('Host peer opened:', id);
@@ -233,7 +234,7 @@ export class GuestPeerManager {
         reject(new Error('Connection timed out'));
       }, timeoutMs);
 
-      this.peer = new Peer();
+      this.peer = new Peer(PEER_OPTIONS);
 
       this.peer.on('open', () => {
         this.conn = this.peer.connect(this.hostPeerId, { reliable: true });
