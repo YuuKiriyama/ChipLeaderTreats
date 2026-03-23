@@ -405,26 +405,42 @@ export default function GuestView({ hostPeerId, onExit }) {
 
 function GuestFinalChipsInput({ value, onCommit }) {
   const [local, setLocal] = useState(value ?? '');
+  const [submitted, setSubmitted] = useState(value != null && value !== '');
 
   useEffect(() => {
     setLocal(value ?? '');
+    setSubmitted(value != null && value !== '');
   }, [value]);
+
+  const handleSubmit = () => {
+    const val = local === '' ? '' : parseInt(local) || 0;
+    onCommit(val);
+    setSubmitted(true);
+  };
 
   return (
     <div className="mt-3 pt-3 border-t border-green-200">
       <label className="block text-sm font-medium text-green-800 mb-1">Your Final Chips</label>
-      <input
-        type="number"
-        value={local}
-        onChange={(e) => setLocal(e.target.value)}
-        onBlur={() => {
-          const val = local === '' ? '' : parseInt(local) || 0;
-          onCommit(val);
-        }}
-        placeholder="Enter your remaining chips"
-        className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
-        min="0"
-      />
+      <div className="flex gap-2">
+        <input
+          type="number"
+          value={local}
+          onChange={(e) => { setLocal(e.target.value); setSubmitted(false); }}
+          placeholder="Enter your remaining chips"
+          className="flex-1 px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
+          min="0"
+        />
+        <button
+          onClick={handleSubmit}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            submitted
+              ? 'bg-green-100 text-green-700 border border-green-300'
+              : 'bg-green-600 text-white hover:bg-green-700'
+          }`}
+        >
+          {submitted ? 'Sent' : 'Submit'}
+        </button>
+      </div>
     </div>
   );
 }

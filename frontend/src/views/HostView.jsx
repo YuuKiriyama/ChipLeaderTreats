@@ -319,14 +319,25 @@ export default function HostView({ isResume, onExit }) {
           </div>
         </div>
 
-        {/* QR Code - always visible in lobby */}
-        {gameState.gameStatus === 'lobby' && (
-          <div className="bg-white rounded-2xl shadow p-6 mb-4 text-center">
-            <p className="text-sm text-gray-500 mb-3">Scan to join this game</p>
-            <div className="inline-block p-3 bg-white rounded-xl border-2 border-gray-100">
-              <QRCodeSVG value={joinUrl} size={200} level="M" />
-            </div>
-            <p className="text-xs text-gray-400 mt-3 break-all">{joinUrl}</p>
+        {/* QR Code & Join Link */}
+        {gameState.gameStatus !== 'ended' && (
+          <div className="bg-white rounded-2xl shadow p-4 mb-4 text-center">
+            {gameState.gameStatus === 'lobby' ? (
+              <>
+                <p className="text-sm text-gray-500 mb-3">Scan to join this game</p>
+                <div className="inline-block p-3 bg-white rounded-xl border-2 border-gray-100">
+                  <QRCodeSVG value={joinUrl} size={200} level="M" />
+                </div>
+              </>
+            ) : (
+              <details>
+                <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">Show QR Code</summary>
+                <div className="inline-block p-3 mt-2 bg-white rounded-xl border-2 border-gray-100">
+                  <QRCodeSVG value={joinUrl} size={150} level="M" />
+                </div>
+              </details>
+            )}
+            <p className="text-xs text-gray-400 mt-3 break-all select-all">{joinUrl}</p>
           </div>
         )}
 
