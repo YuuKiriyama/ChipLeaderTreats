@@ -22,7 +22,11 @@ const ICE_SERVERS = [
 ];
 
 export const PEER_OPTIONS = {
-  debug: 1,
+  host: '0.peerjs.com',
+  port: 443,
+  secure: true,
+  path: '/',
+  debug: 2,
   config: {
     iceServers: ICE_SERVERS,
   },

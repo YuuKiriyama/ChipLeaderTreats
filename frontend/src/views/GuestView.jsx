@@ -10,6 +10,7 @@ import {
 
 export default function GuestView({ hostPeerId, onExit }) {
   const [status, setStatus] = useState('connecting'); // connecting | join-form | in-game | disconnected | error
+  const [connPhase, setConnPhase] = useState('signaling');
   const [gameState, setGameState] = useState(null);
   const [playerId, setPlayerId] = useState(null);
   const [playerName, setPlayerName] = useState('');
@@ -31,10 +32,10 @@ export default function GuestView({ hostPeerId, onExit }) {
 
     const manager = new GuestPeerManager({
       hostPeerId,
+      onPhaseChange: (phase) => setConnPhase(phase),
       onStateUpdate: (state) => {
         setGameState(state);
         setStatus('in-game');
-        // Update cached state
         const currentSession = getGuestSession();
         if (currentSession) {
           saveGuestSession({ ...currentSession, lastGameState: state });
@@ -129,6 +130,7 @@ export default function GuestView({ hostPeerId, onExit }) {
     const session = getGuestSession();
     const manager = new GuestPeerManager({
       hostPeerId,
+      onPhaseChange: (phase) => setConnPhase(phase),
       onStateUpdate: (state) => {
         setGameState(state);
         setStatus('in-game');
@@ -176,13 +178,19 @@ export default function GuestView({ hostPeerId, onExit }) {
   // ---- Render states ----
 
   if (status === 'connecting') {
+    const phaseText = connPhase === 'signaling'
+      ? 'Reaching signaling server...'
+      : connPhase === 'connecting'
+        ? 'Signaling OK. Connecting to host peer...'
+        : 'Establishing data channel...';
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600 font-medium">Connecting to host...</p>
+          <p className="text-xs text-gray-400 mt-2">{phaseText}</p>
           {gameState && (
-            <p className="text-sm text-gray-400 mt-2">Showing cached game data</p>
+            <p className="text-sm text-gray-400 mt-1">Showing cached game data</p>
           )}
         </div>
       </div>

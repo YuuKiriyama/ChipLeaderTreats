@@ -174,7 +174,7 @@ export class HostPeerManager {
     });
 
     conn.on('close', () => {
-      if (assignedPlayerId) {
+      if (assignedPlayerId && !this._destroyed) {
         console.log('Guest disconnected:', assignedPlayerId);
         this.connections.delete(assignedPlayerId);
         const state = this.getState();
@@ -215,33 +215,44 @@ export class HostPeerManager {
 // ==================== Guest PeerManager ====================
 
 export class GuestPeerManager {
-  constructor({ hostPeerId, onStateUpdate, onJoinAccepted, onJoinRejected, onRejoinResult, onError, onDisconnect }) {
+  constructor({ hostPeerId, onStateUpdate, onJoinAccepted, onJoinRejected, onRejoinResult, onError, onDisconnect, onPhaseChange }) {
     this.hostPeerId = hostPeerId;
     this.peer = null;
     this.conn = null;
+    this._phase = 'init';
     this.onStateUpdate = onStateUpdate;
     this.onJoinAccepted = onJoinAccepted;
     this.onJoinRejected = onJoinRejected;
     this.onRejoinResult = onRejoinResult;
     this.onError = onError;
     this.onDisconnect = onDisconnect;
+    this.onPhaseChange = onPhaseChange;
     this._destroyed = false;
   }
 
-  async connect(timeoutMs = 10000) {
+  async connect(timeoutMs = 15000) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error('Connection timed out'));
+        reject(new Error('Connection timed out. The host may be offline.'));
       }, timeoutMs);
+
+      this._phase = 'signaling';
+      this.onPhaseChange?.('signaling');
 
       this.peer = new Peer(PEER_OPTIONS);
 
-      this.peer.on('open', () => {
+      this.peer.on('open', (myId) => {
+        console.log('Guest registered on signaling server:', myId);
+        this._phase = 'connecting';
+        this.onPhaseChange?.('connecting');
+
         this.conn = this.peer.connect(this.hostPeerId, { reliable: true });
 
         this.conn.on('open', () => {
           clearTimeout(timer);
-          console.log('Connected to host:', this.hostPeerId);
+          this._phase = 'connected';
+          this.onPhaseChange?.('connected');
+          console.log('Data channel open with host:', this.hostPeerId);
           this._setupDataHandler();
           resolve();
         });
@@ -255,14 +266,21 @@ export class GuestPeerManager {
 
         this.conn.on('error', (err) => {
           clearTimeout(timer);
-          reject(err);
+          console.error('Data connection error:', err);
+          reject(new Error('Failed to establish data channel with host.'));
         });
       });
 
       this.peer.on('error', (err) => {
         clearTimeout(timer);
-        console.error('Guest peer error:', err);
-        reject(err);
+        console.error('Guest peer error:', err.type, err);
+        if (err.type === 'peer-unavailable') {
+          reject(new Error('Host not found. The host may have closed the game.'));
+        } else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') {
+          reject(new Error('Cannot reach signaling server. Check your network.'));
+        } else {
+          reject(new Error(`Connection error: ${err.type || err.message}`));
+        }
       });
 
       this.peer.on('disconnected', () => {
