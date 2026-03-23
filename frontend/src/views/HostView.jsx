@@ -5,7 +5,7 @@ import { Icons } from '../components/Icons';
 import PlayerTable from '../components/PlayerTable';
 import GameConfig from '../components/GameConfig';
 import {
-  getHostPeerId, setHostPeerId,
+  getHostPeerId, setHostPeerId, clearHostPeerId,
   getGameState, saveGameState, clearGameState,
   appendGameHistory, setActiveRole, clearActiveRole,
 } from '../utils/localStorage';
@@ -110,11 +110,8 @@ export default function HostView({ isResume, onExit }) {
   const handleStartWithName = () => {
     setActiveRole('host');
     const name = hostName.trim() || 'Host';
-    let peerId = getHostPeerId();
-    if (!peerId) {
-      peerId = generatePeerId();
-      setHostPeerId(peerId);
-    }
+    const peerId = generatePeerId();
+    setHostPeerId(peerId);
     const state = createInitialState(peerId, name);
     setGameState(state);
     saveGameState(state);
@@ -213,9 +210,10 @@ export default function HostView({ isResume, onExit }) {
 
   const discardGame = () => {
     if (!confirm('Discard current game? All data will be lost.')) return;
-    clearGameState();
-    clearActiveRole();
     managerRef.current?.destroy();
+    clearGameState();
+    clearHostPeerId();
+    clearActiveRole();
     onExit();
   };
 
@@ -251,25 +249,39 @@ export default function HostView({ isResume, onExit }) {
     );
   }
 
-  const handleRetryPeer = () => {
+  const handleRetryPeer = (newId = false) => {
     setError(null);
     setPeerReady(false);
     managerRef.current?.destroy();
-    const state = stateRef.current;
+    let state = stateRef.current;
     if (state) {
+      if (newId) {
+        const peerId = generatePeerId();
+        setHostPeerId(peerId);
+        state = { ...state, hostPeerId: peerId };
+        setGameState(state);
+        saveGameState(state);
+      }
       initPeer(state);
     }
   };
 
   if (error) {
+    const isIdConflict = error.includes('Peer ID already in use');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 text-center max-w-sm">
           <p className="text-red-600 font-semibold mb-4">{error}</p>
           <div className="space-y-2">
-            <button onClick={handleRetryPeer} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Retry
-            </button>
+            {isIdConflict ? (
+              <button onClick={() => handleRetryPeer(true)} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Generate New ID &amp; Retry
+              </button>
+            ) : (
+              <button onClick={() => handleRetryPeer(false)} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Retry
+              </button>
+            )}
             <button onClick={onExit} className="w-full px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
               Back
             </button>

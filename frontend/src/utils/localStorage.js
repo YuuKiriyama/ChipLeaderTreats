@@ -45,6 +45,10 @@ export function clearGameState() {
   localStorage.removeItem(KEYS.GAME_STATE);
 }
 
+export function clearHostPeerId() {
+  localStorage.removeItem(KEYS.HOST_PEER_ID);
+}
+
 export function getGameHistory() {
   return safeGet(KEYS.GAME_HISTORY) || [];
 }
