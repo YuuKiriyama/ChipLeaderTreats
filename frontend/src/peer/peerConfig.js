@@ -1,23 +1,25 @@
 const ICE_SERVERS = [
+  { urls: 'stun:stun.relay.metered.ca:80' },
   { urls: 'stun:stun.l.google.com:19302' },
-  { urls: 'stun:stun1.l.google.com:19302' },
-  { urls: 'stun:stun2.l.google.com:19302' },
-  { urls: 'stun:stun3.l.google.com:19302' },
-  { urls: 'stun:stun4.l.google.com:19302' },
   {
-    urls: 'turn:openrelay.metered.ca:80',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
+    urls: 'turn:global.relay.metered.ca:80',
+    username: 'd5cbf9df7f8e9b3370b63e90',
+    credential: '3+Qn6DVyGOP0Lxaf',
   },
   {
-    urls: 'turn:openrelay.metered.ca:443',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
+    urls: 'turn:global.relay.metered.ca:80?transport=tcp',
+    username: 'd5cbf9df7f8e9b3370b63e90',
+    credential: '3+Qn6DVyGOP0Lxaf',
   },
   {
-    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
+    urls: 'turn:global.relay.metered.ca:443',
+    username: 'd5cbf9df7f8e9b3370b63e90',
+    credential: '3+Qn6DVyGOP0Lxaf',
+  },
+  {
+    urls: 'turns:global.relay.metered.ca:443?transport=tcp',
+    username: 'd5cbf9df7f8e9b3370b63e90',
+    credential: '3+Qn6DVyGOP0Lxaf',
   },
 ];
 
