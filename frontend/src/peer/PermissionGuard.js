@@ -1,4 +1,5 @@
 import { GuestMessage } from './MessageProtocol';
+import { GAME_LIMITS } from '../utils/gameConstraints';
 
 export function validateGuestAction(message, playerId, gameState) {
   const { type, payload } = message;
@@ -32,9 +33,15 @@ export function validateGuestAction(message, playerId, gameState) {
     }
 
     case GuestMessage.INCREASE_BUYIN: {
-      const amount = parseInt(payload.amount);
+      const amount = parseInt(payload.amount, 10);
       if (!amount || amount < 1) {
         return { ok: false, reason: 'Buy-in amount must be at least 1' };
+      }
+      if (amount > GAME_LIMITS.MAX_BUYIN_INCREASE_PER_REQUEST) {
+        return {
+          ok: false,
+          reason: `You can add at most ${GAME_LIMITS.MAX_BUYIN_INCREASE_PER_REQUEST} buy-ins per action`,
+        };
       }
       if (gameState.gameStatus !== 'playing' && gameState.gameStatus !== 'lobby') {
         return { ok: false, reason: 'Cannot add buy-in at this time' };

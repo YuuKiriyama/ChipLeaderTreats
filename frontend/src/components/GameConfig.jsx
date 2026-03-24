@@ -14,7 +14,12 @@ function BlurInput({ type, value, onCommit, disabled, placeholder, min, classNam
       onChange={(e) => setLocal(e.target.value)}
       onBlur={() => {
         if (type === 'number') {
-          onCommit(local === '' ? null : parseInt(local) || 0);
+          if (local === '') {
+            onCommit(null);
+          } else {
+            const n = parseInt(local, 10);
+            onCommit(Number.isNaN(n) ? null : n);
+          }
         } else {
           onCommit(local);
         }

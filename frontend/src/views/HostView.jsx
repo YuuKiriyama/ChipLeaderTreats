@@ -10,6 +10,7 @@ import {
   appendGameHistory, setActiveRole, clearActiveRole,
 } from '../utils/localStorage';
 import { generateGameName, calculateBalance } from '../utils/helpers';
+import { applyGameConfigChange, validateGameConfigForStart } from '../utils/gameConstraints';
 
 function generatePeerId() {
   return 'clt_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
@@ -121,14 +122,15 @@ export default function HostView({ isResume, onExit }) {
 
   const updateConfig = (key, value) => {
     if (gameState.gameStatus !== 'lobby') return;
-    const newState = { ...gameState, [key]: value };
+    const newState = applyGameConfigChange(gameState, key, value);
     setGameState(newState);
     managerRef.current?.broadcastState(newState);
   };
 
   const startGame = () => {
-    if (!gameState.buyInChips || !gameState.chipValue) {
-      alert('Please fill in buy-in chips and chip rate');
+    const cfg = validateGameConfigForStart(gameState);
+    if (!cfg.ok) {
+      alert(cfg.message);
       return;
     }
     if (gameState.players.length < 2) {

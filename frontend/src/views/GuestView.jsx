@@ -34,6 +34,7 @@ export default function GuestView({ hostPeerId, onExit }) {
       hostPeerId,
       onPhaseChange: (phase) => setConnPhase(phase),
       onStateUpdate: (state) => {
+        setErrorMsg('');
         setGameState(state);
         setStatus('in-game');
         const currentSession = getGuestSession();
@@ -132,6 +133,7 @@ export default function GuestView({ hostPeerId, onExit }) {
       hostPeerId,
       onPhaseChange: (phase) => setConnPhase(phase),
       onStateUpdate: (state) => {
+        setErrorMsg('');
         setGameState(state);
         setStatus('in-game');
         const currentSession = getGuestSession();
@@ -299,8 +301,22 @@ export default function GuestView({ hostPeerId, onExit }) {
   // ---- In-game view ----
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Waiting for game data...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          {errorMsg && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-left">
+              <p className="text-sm text-red-800">{errorMsg}</p>
+              <button
+                type="button"
+                className="mt-2 text-xs text-red-600 underline"
+                onClick={() => setErrorMsg('')}
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+          <p className="text-gray-500">Waiting for game data...</p>
+        </div>
       </div>
     );
   }
@@ -310,6 +326,18 @@ export default function GuestView({ hostPeerId, onExit }) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-2xl mx-auto p-4">
+        {errorMsg && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex justify-between items-start gap-3">
+            <p className="text-sm text-red-800 flex-1">{errorMsg}</p>
+            <button
+              type="button"
+              className="shrink-0 text-xs text-red-600 font-medium hover:text-red-800"
+              onClick={() => setErrorMsg('')}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
