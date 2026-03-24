@@ -23,6 +23,7 @@ npm run preview   # Preview production build
 
 ### P2P Layer (`src/peer/`)
 
+- `peerConfig.js` — Loads ICE/TURN servers from `/api/turn-credentials` (cached per session); falls back to STUN-only if the API is missing (e.g. plain Vite dev)
 - `PeerManager.js` — `HostPeerManager` and `GuestPeerManager` classes managing PeerJS connections, message routing, and reconnection
 - `MessageProtocol.js` — Defines message types (JOIN, REJOIN, STATE_UPDATE, etc.) and serialization
 - `PermissionGuard.js` — Validates guest actions server-side (on host) before applying state changes

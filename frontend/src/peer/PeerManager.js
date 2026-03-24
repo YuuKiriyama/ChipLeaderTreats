@@ -1,7 +1,7 @@
 import Peer from 'peerjs';
 import { createMessage, parseMessage, HostMessage, GuestMessage } from './MessageProtocol';
 import { validateGuestAction } from './PermissionGuard';
-import { PEER_OPTIONS } from './peerConfig';
+import { getPeerOptions } from './peerConfig';
 
 function generateId(prefix = 'clt') {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -21,8 +21,9 @@ export class HostPeerManager {
   }
 
   async start() {
+    const peerOptions = await getPeerOptions();
     return new Promise((resolve, reject) => {
-      this.peer = new Peer(this.peerId, PEER_OPTIONS);
+      this.peer = new Peer(this.peerId, peerOptions);
 
       this.peer.on('open', (id) => {
         console.log('Host peer opened:', id);
@@ -39,6 +40,8 @@ export class HostPeerManager {
           reject(new Error('Peer ID already in use. Please try again.'));
         } else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error' || err.type === 'socket-closed') {
           reject(new Error('Network error. Please check your connection and try again.'));
+        } else {
+          reject(new Error(err.message || `Peer error: ${err.type || 'unknown'}`));
         }
       });
 
@@ -231,6 +234,7 @@ export class GuestPeerManager {
   }
 
   async connect(timeoutMs = 15000) {
+    const peerOptions = await getPeerOptions();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error('Connection timed out. The host may be offline.'));
@@ -239,7 +243,7 @@ export class GuestPeerManager {
       this._phase = 'signaling';
       this.onPhaseChange?.('signaling');
 
-      this.peer = new Peer(PEER_OPTIONS);
+      this.peer = new Peer(peerOptions);
 
       this.peer.on('open', (myId) => {
         console.log('Guest registered on signaling server:', myId);

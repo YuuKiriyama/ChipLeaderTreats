@@ -18,7 +18,7 @@ Host opens website ──> Creates game ──> QR code generated
 - **Guests** scan the QR code (or open the link) to join
 - All communication happens directly between devices via WebRTC (PeerJS)
 - Game data is stored in the host's browser (localStorage), not on any server
-- The deployed site (Vercel) only serves static files — no backend, no database
+- The deployed site (Vercel) serves static files plus a small **serverless** endpoint (`/api/turn-credentials`) that fetches short-lived TURN credentials from Metered — your Metered API key stays on the server, not in the browser bundle
 
 ## Features
 
@@ -36,7 +36,7 @@ Host opens website ──> Creates game ──> QR code generated
 - **PeerJS** (WebRTC abstraction for P2P data channels)
 - **qrcode.react** (QR code generation)
 - **localStorage** (game state and history persistence)
-- **Vercel** (static hosting)
+- **Vercel** (static hosting + Serverless Function for TURN credentials)
 
 ## Project Structure
 
@@ -64,6 +64,7 @@ frontend/
 ├── index.html
 ├── vite.config.js
 └── package.json
+api/turn-credentials.js          # Vercel: Metered TURN credentials proxy
 vercel.json                      # Vercel deployment config
 ```
 
@@ -89,6 +90,13 @@ To test on the same machine, use two different browsers (e.g., Chrome as host, S
 
 ### Deploy to Vercel
 
+In the Vercel project **Settings → Environment Variables**, add:
+
+| Name | Value |
+|------|--------|
+| `METERED_API_KEY` | Your Metered **API Key** (Dashboard → API Keys) |
+| `METERED_APP_DOMAIN` | Your Metered app host, e.g. `chipleadertreats.metered.live` (no `https://`) |
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -98,6 +106,16 @@ vercel
 ```
 
 Or connect the GitHub repo to Vercel for automatic deployments. The `vercel.json` is already configured.
+
+### Local dev with TURN API
+
+Plain `npm run dev` in `frontend/` does **not** serve `/api/turn-credentials`. The app falls back to STUN-only (fine for same-LAN testing). For cross-network testing locally, run from the **repo root**:
+
+```bash
+npx vercel dev
+```
+
+Then open the URL Vercel prints (it proxies both the API and the frontend).
 
 ## Game Flow
 
@@ -115,6 +133,7 @@ Or connect the GitHub repo to Vercel for automatic deployments. The `vercel.json
 - All game data lives in the **host's browser localStorage**
 - No data is sent to or stored on any server
 - PeerJS's public signaling server (`0.peerjs.com`) is only used to establish the initial WebRTC connection — no game data passes through it
+- TURN relay traffic goes through Metered; temporary credentials are issued by your Vercel function, not embedded in client code
 - Clearing the host's browser data will erase game history
 
 ## License
