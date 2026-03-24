@@ -33,14 +33,15 @@ function BlurInput({ type, value, onCommit, disabled, placeholder, min, classNam
 }
 
 export default function GameConfig({ gameState, onChange, disabled }) {
-  const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-50 disabled:text-gray-500';
+  const inputClass =
+    'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:text-gray-500 dark:disabled:text-gray-500';
 
   return (
-    <div className="bg-white rounded-2xl shadow p-4 mb-4">
-      <h3 className="font-semibold text-gray-700 mb-3">Game Settings</h3>
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow dark:shadow-gray-900/50 p-4 mb-4 border border-transparent dark:border-gray-800">
+      <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-3">Game Settings</h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label className="block text-xs text-gray-500 mb-1">Game Name</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Game Name</label>
           <BlurInput
             type="text"
             value={gameState.gameName}
@@ -50,7 +51,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Small Blind</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Small Blind</label>
           <BlurInput
             type="number"
             value={gameState.smallBlind}
@@ -61,7 +62,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Big Blind</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Big Blind</label>
           <BlurInput
             type="number"
             value={gameState.bigBlind}
@@ -72,7 +73,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Buy-in Chips</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Buy-in Chips</label>
           <BlurInput
             type="number"
             value={gameState.buyInChips}
@@ -84,7 +85,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Chips per $1</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Chips per $1</label>
           <BlurInput
             type="number"
             value={gameState.chipValue}

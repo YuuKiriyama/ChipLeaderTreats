@@ -11,6 +11,7 @@ import {
 } from '../utils/localStorage';
 import { generateGameName, calculateBalance } from '../utils/helpers';
 import { applyGameConfigChange, validateGameConfigForStart } from '../utils/gameConstraints';
+import { hapticLight, hapticSuccess } from '../utils/haptics';
 
 function generatePeerId() {
   return 'clt_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
@@ -47,6 +48,7 @@ export default function HostView({ isResume, onExit }) {
   const [error, setError] = useState(null);
   const [hostName, setHostName] = useState('');
   const [showNamePrompt, setShowNamePrompt] = useState(!isResume);
+  const [copyHint, setCopyHint] = useState('');
   const managerRef = useRef(null);
 
   const stateRef = useRef(gameState);
@@ -109,6 +111,7 @@ export default function HostView({ isResume, onExit }) {
   }, []);
 
   const handleStartWithName = () => {
+    hapticLight();
     setActiveRole('host');
     const name = hostName.trim() || 'Host';
     const peerId = generatePeerId();
@@ -137,6 +140,7 @@ export default function HostView({ isResume, onExit }) {
       alert('Need at least 2 players');
       return;
     }
+    hapticLight();
     const newState = {
       ...gameState,
       gameStatus: 'playing',
@@ -147,6 +151,7 @@ export default function HostView({ isResume, onExit }) {
   };
 
   const settleGame = () => {
+    hapticLight();
     const newState = {
       ...gameState,
       gameStatus: 'settling',
@@ -164,6 +169,7 @@ export default function HostView({ isResume, onExit }) {
         return;
       }
     }
+    hapticLight();
     const finalState = { ...gameState, gameStatus: 'ended' };
     setGameState(finalState);
     appendGameHistory(finalState);
@@ -174,6 +180,7 @@ export default function HostView({ isResume, onExit }) {
   };
 
   const updatePlayerBuyIns = (playerId, delta) => {
+    hapticLight();
     setGameState((prev) => {
       const newState = {
         ...prev,
@@ -212,6 +219,7 @@ export default function HostView({ isResume, onExit }) {
 
   const discardGame = () => {
     if (!confirm('Discard current game? All data will be lost.')) return;
+    hapticLight();
     managerRef.current?.destroy();
     clearGameState();
     clearHostPeerId();
@@ -222,16 +230,15 @@ export default function HostView({ isResume, onExit }) {
   // Name prompt for new game
   if (showNamePrompt) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Your Name</h2>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-gray-900/50 p-6 w-full max-w-sm border border-transparent dark:border-gray-800">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">Your Name</h2>
           <input
             type="text"
             value={hostName}
             onChange={(e) => setHostName(e.target.value)}
-            
             placeholder="Enter your name"
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             autoFocus
           />
           <button
@@ -242,7 +249,7 @@ export default function HostView({ isResume, onExit }) {
           </button>
           <button
             onClick={onExit}
-            className="w-full mt-2 py-3 text-gray-500 text-sm hover:text-gray-700"
+            className="w-full mt-2 py-3 text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-300"
           >
             Cancel
           </button>
@@ -271,20 +278,20 @@ export default function HostView({ isResume, onExit }) {
   if (error) {
     const isIdConflict = error.includes('Peer ID already in use');
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-lg p-6 text-center max-w-sm">
-          <p className="text-red-600 font-semibold mb-4">{error}</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-gray-900/50 p-6 text-center max-w-sm border border-transparent dark:border-gray-800">
+          <p className="text-red-600 dark:text-red-400 font-semibold mb-4">{error}</p>
           <div className="space-y-2">
             {isIdConflict ? (
-              <button onClick={() => handleRetryPeer(true)} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button onClick={() => { hapticLight(); handleRetryPeer(true); }} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Generate New ID &amp; Retry
               </button>
             ) : (
-              <button onClick={() => handleRetryPeer(false)} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button onClick={() => { hapticLight(); handleRetryPeer(false); }} className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Retry
               </button>
             )}
-            <button onClick={onExit} className="w-full px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+            <button onClick={onExit} className="w-full px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
               Back
             </button>
           </div>
@@ -295,8 +302,8 @@ export default function HostView({ isResume, onExit }) {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">Loading...</p>
       </div>
     );
   }
@@ -304,18 +311,44 @@ export default function HostView({ isResume, onExit }) {
   const joinUrl = `${window.location.origin}${window.location.pathname}#/join/${gameState.hostPeerId}`;
   const guestCount = gameState.players.filter((p) => !p.isHost && p.isConnected).length;
 
+  const copyJoinLinkToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(joinUrl);
+      hapticSuccess();
+      setCopyHint('Copied!');
+      setTimeout(() => setCopyHint(''), 2000);
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = joinUrl;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        hapticSuccess();
+        setCopyHint('Copied!');
+        setTimeout(() => setCopyHint(''), 2000);
+      } catch {
+        setCopyHint('Copy failed');
+        setTimeout(() => setCopyHint(''), 2000);
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-2xl mx-auto p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <span className="w-6 h-6 text-green-600"><Icons.DollarSign /></span>
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <span className="w-6 h-6 text-green-600 dark:text-green-400"><Icons.DollarSign /></span>
             ChipLeaderTreats
           </h1>
           <div className="flex items-center gap-2 text-sm">
             <div className={`w-2 h-2 rounded-full ${peerReady ? 'bg-green-500' : 'bg-yellow-500'}`} />
-            <span className="text-gray-600">
+            <span className="text-gray-600 dark:text-gray-300">
               {peerReady ? `${guestCount} guest${guestCount !== 1 ? 's' : ''} connected` : 'Connecting...'}
             </span>
           </div>
@@ -323,23 +356,31 @@ export default function HostView({ isResume, onExit }) {
 
         {/* QR Code & Join Link */}
         {gameState.gameStatus !== 'ended' && (
-          <div className="bg-white rounded-2xl shadow p-4 mb-4 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow dark:shadow-gray-900/50 p-4 mb-4 text-center border border-transparent dark:border-gray-800">
             {gameState.gameStatus === 'lobby' ? (
               <>
-                <p className="text-sm text-gray-500 mb-3">Scan to join this game</p>
-                <div className="inline-block p-3 bg-white rounded-xl border-2 border-gray-100">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Scan to join this game</p>
+                <div className="inline-block p-3 bg-white rounded-xl border-2 border-gray-100 dark:border-gray-600">
                   <QRCodeSVG value={joinUrl} size={200} level="M" />
                 </div>
               </>
             ) : (
-              <details>
-                <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">Show QR Code</summary>
-                <div className="inline-block p-3 mt-2 bg-white rounded-xl border-2 border-gray-100">
+              <details className="text-left">
+                <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 list-none text-center">Show QR Code</summary>
+                <div className="inline-block p-3 mt-2 bg-white rounded-xl border-2 border-gray-100 dark:border-gray-600 mx-auto">
                   <QRCodeSVG value={joinUrl} size={150} level="M" />
                 </div>
               </details>
             )}
-            <p className="text-xs text-gray-400 mt-3 break-all select-all">{joinUrl}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 break-all select-all text-center max-w-full mx-auto">{joinUrl}</p>
+            <button
+              type="button"
+              onClick={copyJoinLinkToClipboard}
+              className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors"
+            >
+              <span className="w-4 h-4"><Icons.Copy /></span>
+              {copyHint || 'Copy link'}
+            </button>
           </div>
         )}
 
@@ -351,7 +392,7 @@ export default function HostView({ isResume, onExit }) {
         />
 
         {/* Player Table */}
-        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow dark:shadow-gray-900/50 p-4 mb-4 border border-transparent dark:border-gray-800">
           <PlayerTable
             players={gameState.players}
             buyInChips={gameState.buyInChips}
@@ -399,7 +440,7 @@ export default function HostView({ isResume, onExit }) {
 
           {gameState.gameStatus === 'ended' && (
             <button
-              onClick={onExit}
+              onClick={() => { hapticLight(); onExit(); }}
               className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
             >
               Back to Home
@@ -409,7 +450,7 @@ export default function HostView({ isResume, onExit }) {
           {gameState.gameStatus !== 'ended' && (
             <button
               onClick={discardGame}
-              className="w-full py-3 bg-white text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-colors border border-red-200 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 rounded-xl font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors border border-red-200 dark:border-red-900 flex items-center justify-center gap-2"
             >
               <span className="w-5 h-5"><Icons.Trash2 /></span>
               Discard Game
