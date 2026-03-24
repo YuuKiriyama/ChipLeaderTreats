@@ -167,7 +167,13 @@ export default function GuestView({ hostPeerId, onExit }) {
     });
   };
 
-  const handleLeave = () => {
+  const handleLeave = (skipConfirm = false) => {
+    if (!skipConfirm) {
+      const ok = confirm(
+        'Leave this game? You will need the host\'s invite link to rejoin with the same player.'
+      );
+      if (!ok) return;
+    }
     clearGuestSession();
     clearActiveRole();
     managerRef.current?.destroy();
@@ -392,7 +398,7 @@ export default function GuestView({ hostPeerId, onExit }) {
 
         {gameState.gameStatus === 'ended' && (
           <button
-            onClick={handleLeave}
+            onClick={() => handleLeave(true)}
             className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700"
           >
             Done
