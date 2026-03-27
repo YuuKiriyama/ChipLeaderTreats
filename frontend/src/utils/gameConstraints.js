@@ -10,6 +10,11 @@ export const GAME_LIMITS = {
   /** Max buy-ins a guest can add in a single INCREASE_BUYIN message (anti-abuse). */
   MAX_BUYIN_INCREASE_PER_REQUEST: 50,
   MAX_GAME_NAME_LENGTH: 200,
+  /** Optional chip types for guest settling (count × chips each). */
+  MAX_CHIP_DENOMINATION_TYPES: 16,
+  MIN_CHIP_DENOM_CHIPS: 1,
+  MAX_CHIP_DENOM_CHIPS: 2_000_000_000,
+  MAX_CHIP_DENOM_LABEL_LENGTH: 40,
 };
 
 function clampInt(n, min, max, fallback) {
@@ -67,6 +72,24 @@ export function applyGameConfigChange(prevState, key, value) {
       return { ...prevState, chipValue: null };
     }
     return { ...prevState, chipValue: Math.min(L.MAX_CHIP_VALUE, n) };
+  }
+
+  if (key === 'chipDenominations') {
+    const raw = Array.isArray(value) ? value : [];
+    const sanitized = raw.slice(0, L.MAX_CHIP_DENOMINATION_TYPES).map((row, i) => {
+      const chipsRaw = parseNullableInt(row.chips);
+      let chips =
+        chipsRaw == null || chipsRaw < L.MIN_CHIP_DENOM_CHIPS
+          ? L.MIN_CHIP_DENOM_CHIPS
+          : Math.min(L.MAX_CHIP_DENOM_CHIPS, chipsRaw);
+      const label = String(row.label ?? '').trim().slice(0, L.MAX_CHIP_DENOM_LABEL_LENGTH);
+      const id =
+        typeof row.id === 'string' && row.id.trim()
+          ? row.id.trim().slice(0, 64)
+          : `cd_${Date.now().toString(36)}_${i}_${Math.random().toString(36).slice(2, 8)}`;
+      return { id, label, chips };
+    });
+    return { ...prevState, chipDenominations: sanitized };
   }
 
   return { ...prevState, [key]: value };

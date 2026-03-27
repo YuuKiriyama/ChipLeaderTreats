@@ -405,6 +405,7 @@ export default function GuestView({ hostPeerId, onExit }) {
               <GuestFinalChipsInput
                 value={myPlayer.finalChips}
                 onCommit={handleSetFinalChips}
+                denominations={gameState.chipDenominations ?? []}
               />
             )}
           </div>
@@ -446,46 +447,152 @@ export default function GuestView({ hostPeerId, onExit }) {
   );
 }
 
-function GuestFinalChipsInput({ value, onCommit }) {
+function GuestFinalChipsInput({ value, onCommit, denominations }) {
+  const denoms = denominations?.length ? denominations : [];
+  const showBreakdown = denoms.length > 0;
+
+  const [mode, setMode] = useState('total');
   const [local, setLocal] = useState(value ?? '');
+  const [counts, setCounts] = useState(() => Object.fromEntries(denoms.map((d) => [d.id, ''])));
   const [submitted, setSubmitted] = useState(value != null && value !== '');
+
+  const denomKey = denoms.map((d) => d.id).join('|');
 
   useEffect(() => {
     setLocal(value ?? '');
     setSubmitted(value != null && value !== '');
   }, [value]);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    setCounts(Object.fromEntries(denoms.map((d) => [d.id, ''])));
+  }, [denomKey]);
+
+  useEffect(() => {
+    if (!showBreakdown) setMode('total');
+  }, [showBreakdown]);
+
+  const breakdownTotal = denoms.reduce((sum, d) => {
+    const n = parseInt(counts[d.id], 10);
+    return sum + (Number.isNaN(n) || n < 0 ? 0 : n) * d.chips;
+  }, 0);
+
+  const handleSubmitTotal = () => {
     hapticSuccess();
-    const val = local === '' ? '' : parseInt(local) || 0;
+    const val = local === '' ? '' : parseInt(local, 10) || 0;
     onCommit(val);
+    setSubmitted(true);
+  };
+
+  const handleSubmitBreakdown = () => {
+    hapticSuccess();
+    onCommit(breakdownTotal);
     setSubmitted(true);
   };
 
   return (
     <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-800">
-      <label className="block text-sm font-medium text-green-800 dark:text-green-300 mb-1">Your Final Chips</label>
-      <div className="flex gap-2">
-        <input
-          type="number"
-          value={local}
-          onChange={(e) => { setLocal(e.target.value); setSubmitted(false); }}
-          placeholder="Enter your remaining chips"
-          className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          min="0"
-        />
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-            submitted
-              ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700'
-              : 'bg-green-600 text-white hover:bg-green-700'
-          }`}
-        >
-          {submitted ? 'Sent' : 'Submit'}
-        </button>
-      </div>
+      <label className="block text-sm font-medium text-green-800 dark:text-green-300 mb-1">
+        Your final chips
+      </label>
+
+      {showBreakdown && (
+        <div className="flex rounded-lg overflow-hidden border border-green-300 dark:border-green-700 mb-2">
+          <button
+            type="button"
+            onClick={() => {
+              setMode('total');
+              setSubmitted(false);
+            }}
+            className={`flex-1 py-2 text-xs font-semibold transition-colors ${
+              mode === 'total'
+                ? 'bg-green-600 text-white'
+                : 'bg-white dark:bg-gray-800 text-green-800 dark:text-green-300'
+            }`}
+          >
+            Total
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode('breakdown');
+              setSubmitted(false);
+            }}
+            className={`flex-1 py-2 text-xs font-semibold transition-colors ${
+              mode === 'breakdown'
+                ? 'bg-green-600 text-white'
+                : 'bg-white dark:bg-gray-800 text-green-800 dark:text-green-300'
+            }`}
+          >
+            By type
+          </button>
+        </div>
+      )}
+
+      {mode === 'total' && (
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={local}
+            onChange={(e) => {
+              setLocal(e.target.value);
+              setSubmitted(false);
+            }}
+            placeholder="Enter your remaining chips"
+            className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            min="0"
+          />
+          <button
+            type="button"
+            onClick={handleSubmitTotal}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors shrink-0 ${
+              submitted
+                ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700'
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }`}
+          >
+            {submitted ? 'Sent' : 'Submit'}
+          </button>
+        </div>
+      )}
+
+      {showBreakdown && mode === 'breakdown' && (
+        <div className="space-y-2">
+          {denoms.map((d) => (
+            <div key={d.id} className="flex items-center gap-2">
+              <label className="flex-1 text-xs text-green-700 dark:text-green-400 truncate">
+                {d.label ? `${d.label} (${d.chips} ea.)` : `${d.chips} chips each`}
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={counts[d.id] ?? ''}
+                onChange={(e) => {
+                  setCounts((prev) => ({ ...prev, [d.id]: e.target.value }));
+                  setSubmitted(false);
+                }}
+                placeholder="0"
+                className="w-20 px-2 py-1.5 border border-green-300 dark:border-green-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-right"
+              />
+            </div>
+          ))}
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <span className="text-sm text-green-800 dark:text-green-300">
+              Total: <strong>{breakdownTotal}</strong> chips
+            </span>
+            <button
+              type="button"
+              onClick={handleSubmitBreakdown}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                submitted
+                  ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700'
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
+            >
+              {submitted ? 'Sent' : 'Submit'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

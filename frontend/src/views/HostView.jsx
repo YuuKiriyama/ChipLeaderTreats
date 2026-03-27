@@ -26,6 +26,7 @@ function createInitialState(peerId, hostName) {
     bigBlind: 2,
     buyInChips: null,
     chipValue: null,
+    chipDenominations: [],
     gameStatus: 'lobby',
     startTime: null,
     endTime: null,
@@ -85,6 +86,7 @@ export default function HostView({ isResume, onExit }) {
       if (saved) {
         const restored = {
           ...saved,
+          chipDenominations: saved.chipDenominations ?? [],
           players: saved.players.map((p) =>
             p.isHost ? p : { ...p, isConnected: false }
           ),
