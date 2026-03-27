@@ -48,11 +48,13 @@ export default function GameConfig({ gameState, onChange, disabled }) {
     [onChange]
   );
 
+  const denomOf = (row) => row.value ?? row.chips ?? 1;
+
   const addDenomRow = () => {
     if (denoms.length >= maxTypes) return;
     commitDenoms([
       ...denoms,
-      { id: newDenominationId(), label: '', chips: 1 },
+      { id: newDenominationId(), value: 1 },
     ]);
   };
 
@@ -60,8 +62,9 @@ export default function GameConfig({ gameState, onChange, disabled }) {
     commitDenoms(denoms.filter((d) => d.id !== id));
   };
 
-  const updateDenomRow = (id, patch) => {
-    commitDenoms(denoms.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+  const updateDenomValue = (id, v) => {
+    const value = v == null ? 1 : Math.max(1, v);
+    commitDenoms(denoms.map((d) => (d.id === id ? { ...d, value } : d)));
   };
 
   const inputClass =
@@ -131,31 +134,21 @@ export default function GameConfig({ gameState, onChange, disabled }) {
 
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-          Chip denominations (optional) — if set, guests can enter final chips by type during settling.
+          Chip denominations (optional) — list each chip value in game chips; guests enter how many physical chips
+          they have of each value when settling.
         </p>
         {denoms.length > 0 && (
           <div className="space-y-2 mb-2">
-            <div className="grid grid-cols-[1fr_5rem_2rem] gap-2 text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500 px-1">
-              <span>Label</span>
-              <span className="text-center">Chips ea.</span>
+            <div className="grid grid-cols-[1fr_2rem] gap-2 text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500 px-1">
+              <span>Denomination (chips)</span>
               <span />
             </div>
             {denoms.map((row) => (
-              <div key={row.id} className="grid grid-cols-[1fr_5rem_2rem] gap-2 items-center">
-                <BlurInput
-                  type="text"
-                  value={row.label}
-                  onCommit={(v) => updateDenomRow(row.id, { label: v ?? '' })}
-                  disabled={disabled}
-                  placeholder={`${row.chips} chips`}
-                  className={inputClass}
-                />
+              <div key={row.id} className="grid grid-cols-[1fr_2rem] gap-2 items-center">
                 <BlurInput
                   type="number"
-                  value={row.chips}
-                  onCommit={(v) =>
-                    updateDenomRow(row.id, { chips: v == null ? 1 : Math.max(1, v) })
-                  }
+                  value={denomOf(row)}
+                  onCommit={(v) => updateDenomValue(row.id, v)}
                   disabled={disabled}
                   className={inputClass}
                   min="1"
@@ -179,7 +172,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           onClick={addDenomRow}
           className="text-sm font-medium text-green-600 dark:text-green-400 hover:underline disabled:opacity-40 disabled:no-underline"
         >
-          + Add denomination type
+          + Add denomination
         </button>
       </div>
     </div>

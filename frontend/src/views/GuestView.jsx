@@ -447,6 +447,10 @@ export default function GuestView({ hostPeerId, onExit }) {
   );
 }
 
+function chipDenomValue(d) {
+  return d.value ?? d.chips ?? 0;
+}
+
 function GuestFinalChipsInput({ value, onCommit, denominations }) {
   const denoms = denominations?.length ? denominations : [];
   const showBreakdown = denoms.length > 0;
@@ -473,7 +477,8 @@ function GuestFinalChipsInput({ value, onCommit, denominations }) {
 
   const breakdownTotal = denoms.reduce((sum, d) => {
     const n = parseInt(counts[d.id], 10);
-    return sum + (Number.isNaN(n) || n < 0 ? 0 : n) * d.chips;
+    const v = chipDenomValue(d);
+    return sum + (Number.isNaN(n) || n < 0 ? 0 : n) * v;
   }, 0);
 
   const handleSubmitTotal = () => {
@@ -523,7 +528,7 @@ function GuestFinalChipsInput({ value, onCommit, denominations }) {
                 : 'bg-white dark:bg-gray-800 text-green-800 dark:text-green-300'
             }`}
           >
-            By type
+            By denomination
           </button>
         </div>
       )}
@@ -557,24 +562,33 @@ function GuestFinalChipsInput({ value, onCommit, denominations }) {
 
       {showBreakdown && mode === 'breakdown' && (
         <div className="space-y-2">
-          {denoms.map((d) => (
-            <div key={d.id} className="flex items-center gap-2">
-              <label className="flex-1 text-xs text-green-700 dark:text-green-400 truncate">
-                {d.label ? `${d.label} (${d.chips} ea.)` : `${d.chips} chips each`}
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={counts[d.id] ?? ''}
-                onChange={(e) => {
-                  setCounts((prev) => ({ ...prev, [d.id]: e.target.value }));
-                  setSubmitted(false);
-                }}
-                placeholder="0"
-                className="w-20 px-2 py-1.5 border border-green-300 dark:border-green-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-right"
-              />
-            </div>
-          ))}
+          <div className="grid grid-cols-[1fr_5rem] gap-2 text-[10px] uppercase tracking-wide text-green-600/80 dark:text-green-400/80 px-0.5">
+            <span>Value (chips)</span>
+            <span className="text-center">Count</span>
+          </div>
+          {denoms.map((d) => {
+            const v = chipDenomValue(d);
+            return (
+              <div key={d.id} className="flex items-center gap-2">
+                <span className="flex-1 text-sm font-medium text-green-800 dark:text-green-300 tabular-nums">
+                  {v}
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  aria-label={`Number of ${v}-chip pieces`}
+                  value={counts[d.id] ?? ''}
+                  onChange={(e) => {
+                    setCounts((prev) => ({ ...prev, [d.id]: e.target.value }));
+                    setSubmitted(false);
+                  }}
+                  placeholder="0"
+                  className="w-20 px-2 py-1.5 border border-green-300 dark:border-green-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-right"
+                />
+              </div>
+            );
+          })}
           <div className="flex items-center justify-between gap-2 pt-1">
             <span className="text-sm text-green-800 dark:text-green-300">
               Total: <strong>{breakdownTotal}</strong> chips

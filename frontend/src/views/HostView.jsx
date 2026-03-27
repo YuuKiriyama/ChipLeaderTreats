@@ -86,7 +86,10 @@ export default function HostView({ isResume, onExit }) {
       if (saved) {
         const restored = {
           ...saved,
-          chipDenominations: saved.chipDenominations ?? [],
+          chipDenominations: (saved.chipDenominations ?? []).map((row, i) => ({
+            id: typeof row.id === 'string' && row.id ? row.id : `cd_legacy_${i}`,
+            value: row.value ?? row.chips ?? 1,
+          })),
           players: saved.players.map((p) =>
             p.isHost ? p : { ...p, isConnected: false }
           ),
