@@ -9,7 +9,9 @@ export function validateGuestAction(message, playerId, gameState) {
       if (!payload.name?.trim()) {
         return { ok: false, reason: 'Name is required' };
       }
-      if (gameState.gameStatus !== 'lobby') {
+      const joinAllowed =
+        gameState.gameStatus === 'lobby' || gameState.gameStatus === 'playing';
+      if (!joinAllowed) {
         return { ok: false, reason: 'Game already in progress' };
       }
       const nameExists = gameState.players.some(

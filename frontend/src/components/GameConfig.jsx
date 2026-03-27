@@ -51,7 +51,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Small Blind</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Small Blind (Chips)</label>
           <BlurInput
             type="number"
             value={gameState.smallBlind}
@@ -62,7 +62,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Big Blind</label>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Big Blind (Chips)</label>
           <BlurInput
             type="number"
             value={gameState.bigBlind}

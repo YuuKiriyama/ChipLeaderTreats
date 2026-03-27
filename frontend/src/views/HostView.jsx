@@ -365,10 +365,14 @@ export default function HostView({ isResume, onExit }) {
                 </div>
               </>
             ) : (
-              <details className="text-left">
-                <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 list-none text-center">Show QR Code</summary>
-                <div className="inline-block p-3 mt-2 bg-white rounded-xl border-2 border-gray-100 dark:border-gray-600 mx-auto">
-                  <QRCodeSVG value={joinUrl} size={150} level="M" />
+              <details className="w-full">
+                <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 list-none text-center">
+                  Show QR Code
+                </summary>
+                <div className="flex justify-center w-full mt-2">
+                  <div className="p-3 bg-white rounded-xl border-2 border-gray-100 dark:border-gray-600">
+                    <QRCodeSVG value={joinUrl} size={150} level="M" />
+                  </div>
                 </div>
               </details>
             )}
