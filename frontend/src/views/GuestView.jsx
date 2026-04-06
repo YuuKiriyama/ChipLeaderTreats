@@ -18,6 +18,7 @@ export default function GuestView({ hostPeerId, onExit }) {
   const [playerName, setPlayerName] = useState('');
   const [initialBuyIns, setInitialBuyIns] = useState(1);
   const [errorMsg, setErrorMsg] = useState('');
+  const [pendingClaim, setPendingClaim] = useState(null);
   const managerRef = useRef(null);
   const playerNameRef = useRef(playerName);
   playerNameRef.current = playerName;
@@ -30,6 +31,8 @@ export default function GuestView({ hostPeerId, onExit }) {
       setGameState(session.lastGameState);
       setPlayerId(session.playerId);
       setPlayerName(session.playerName || '');
+    } else if (session && session.hostPeerId === hostPeerId && session.playerName && !session.playerId) {
+      setPlayerName(session.playerName);
     }
 
     const manager = new GuestPeerManager({
@@ -46,6 +49,7 @@ export default function GuestView({ hostPeerId, onExit }) {
       },
       onJoinAccepted: (id) => {
         hapticSuccess();
+        setPendingClaim(null);
         setPlayerId(id);
         setStatus('in-game');
         setActiveRole('guest');
@@ -61,16 +65,32 @@ export default function GuestView({ hostPeerId, onExit }) {
         setErrorMsg(reason);
         setStatus('join-form');
       },
+      onClaimPrompt: ({ playerId: claimId, name: seatName }) => {
+        setPendingClaim({ playerId: claimId, name: seatName });
+      },
       onRejoinResult: (success, reason) => {
         if (success) {
           hapticSuccess();
+          setPendingClaim(null);
           setStatus('in-game');
           setActiveRole('guest');
         } else {
+          const prev = getGuestSession();
+          const savedName = prev?.playerName;
           clearGuestSession();
           clearActiveRole();
           setPlayerId(null);
-          setErrorMsg(reason || 'Rejoin failed. Please join as a new player.');
+          if (hostPeerId && savedName) {
+            saveGuestSession({
+              hostPeerId,
+              playerName: savedName,
+              playerId: null,
+              gameId: null,
+              lastGameState: null,
+            });
+            setPlayerName(savedName);
+          }
+          setErrorMsg(reason || 'Rejoin failed. Try again or enter your in-game name to reclaim your seat.');
           setStatus('join-form');
         }
       },
@@ -120,11 +140,6 @@ export default function GuestView({ hostPeerId, onExit }) {
     setErrorMsg('');
   };
 
-  const handleIncreaseBuyIn = () => {
-    hapticLight();
-    managerRef.current?.send(GuestMessage.INCREASE_BUYIN, { amount: 1 });
-  };
-
   const handleSetFinalChips = (chips) => {
     managerRef.current?.send(GuestMessage.SET_FINAL_CHIPS, { chips });
   };
@@ -150,15 +165,41 @@ export default function GuestView({ hostPeerId, onExit }) {
       },
       onJoinAccepted: (id) => {
         hapticSuccess();
+        setPendingClaim(null);
         setPlayerId(id);
         setStatus('in-game');
         setActiveRole('guest');
         saveGuestSession({ hostPeerId, playerId: id, playerName: playerNameRef.current.trim(), gameId: null, lastGameState: null });
       },
       onJoinRejected: (reason) => { setErrorMsg(reason); setStatus('join-form'); },
+      onClaimPrompt: ({ playerId: claimId, name: seatName }) => {
+        setPendingClaim({ playerId: claimId, name: seatName });
+      },
       onRejoinResult: (success, reason) => {
-        if (success) { hapticSuccess(); setStatus('in-game'); setActiveRole('guest'); }
-        else { clearGuestSession(); clearActiveRole(); setPlayerId(null); setErrorMsg(reason || 'Rejoin failed'); setStatus('join-form'); }
+        if (success) {
+          hapticSuccess();
+          setPendingClaim(null);
+          setStatus('in-game');
+          setActiveRole('guest');
+        } else {
+          const prev = getGuestSession();
+          const savedName = prev?.playerName;
+          clearGuestSession();
+          clearActiveRole();
+          setPlayerId(null);
+          if (hostPeerId && savedName) {
+            saveGuestSession({
+              hostPeerId,
+              playerName: savedName,
+              playerId: null,
+              gameId: null,
+              lastGameState: null,
+            });
+            setPlayerName(savedName);
+          }
+          setErrorMsg(reason || 'Rejoin failed');
+          setStatus('join-form');
+        }
       },
       onError: (msg) => setErrorMsg(msg),
       onDisconnect: () => setStatus('disconnected'),
@@ -177,10 +218,34 @@ export default function GuestView({ hostPeerId, onExit }) {
     });
   };
 
+  const handleConfirmClaimSeat = () => {
+    if (!pendingClaim) return;
+    hapticLight();
+    const pid = pendingClaim.playerId;
+    setPendingClaim(null);
+    setPlayerId(pid);
+    setActiveRole('guest');
+    saveGuestSession({
+      hostPeerId,
+      playerId: pid,
+      playerName: playerNameRef.current.trim(),
+      gameId: null,
+      lastGameState: null,
+    });
+    managerRef.current?.send(GuestMessage.CONFIRM_CLAIM, { playerId: pid });
+    setStatus('in-game');
+  };
+
+  const handleCancelClaimSeat = () => {
+    hapticLight();
+    setPendingClaim(null);
+    setErrorMsg('To join as a new player, choose a different name than an existing seat.');
+  };
+
   const handleLeave = (skipConfirm = false) => {
     if (!skipConfirm) {
       const ok = confirm(
-        'Leave this game? You will need the host\'s invite link to rejoin with the same player.'
+        'Leave? Your seat stays in the game. Reopen the host link to reconnect; you can reclaim your seat by name if your browser forgot the session.'
       );
       if (!ok) return;
     }
@@ -257,8 +322,39 @@ export default function GuestView({ hostPeerId, onExit }) {
   if (status === 'join-form') {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-gray-900/50 p-6 w-full max-w-sm border border-transparent dark:border-gray-800">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-gray-900/50 p-6 w-full max-w-sm border border-transparent dark:border-gray-800 relative">
+          {pendingClaim && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/40 rounded-2xl">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-5 w-full border border-gray-200 dark:border-gray-700">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Returning player?</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Is this you — the player already in this game named{' '}
+                  <span className="font-bold text-gray-900 dark:text-gray-100">{pendingClaim.name}</span>?
+                  Only confirm if you are reclaiming that seat. If you are a new player with the same name, cancel and pick another name.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={handleConfirmClaimSeat}
+                    className="w-full py-2.5 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700"
+                  >
+                    Yes, that&apos;s me
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelClaimSeat}
+                    className="w-full py-2.5 text-gray-600 dark:text-gray-400 text-sm"
+                  >
+                    No — I&apos;ll use a different name
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">Join Game</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 text-center">
+            If you were already seated, enter the same name as in the game to reclaim your seat after the host marks you offline.
+          </p>
 
           {errorMsg && (
             <p className="text-red-500 dark:text-red-400 text-sm mb-3 text-center">{errorMsg}</p>
@@ -391,25 +487,25 @@ export default function GuestView({ hostPeerId, onExit }) {
               <div>
                 <p className="text-sm text-green-700 dark:text-green-300">You: <span className="font-bold">{myPlayer.name}</span></p>
                 <p className="text-sm text-green-600 dark:text-green-400">Buy-ins: {myPlayer.buyIns}</p>
+                <p className="text-xs text-green-700/80 dark:text-green-400/80 mt-1">
+                  Buy-ins are adjusted by the host only.
+                </p>
               </div>
-              {(gameState.gameStatus === 'playing' || gameState.gameStatus === 'lobby') && (
-                <button
-                  onClick={handleIncreaseBuyIn}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors"
-                >
-                  + Buy-in
-                </button>
-              )}
             </div>
 
             {gameState.gameStatus === 'settling' && (
-              <SettlingChipsInput
-                theme="guest"
-                layout="inCard"
-                value={myPlayer.finalChips}
-                onCommit={handleSetFinalChips}
-                denominations={gameState.chipDenominations ?? []}
-              />
+              <>
+                <p className="text-xs text-green-800 dark:text-green-300 mt-2 mb-1">
+                  The host ended the game — enter your remaining chips below. If you closed the page, scan the QR or open the link again to reach this screen.
+                </p>
+                <SettlingChipsInput
+                  theme="guest"
+                  layout="inCard"
+                  value={myPlayer.finalChips}
+                  onCommit={handleSetFinalChips}
+                  denominations={gameState.chipDenominations ?? []}
+                />
+              </>
             )}
           </div>
         )}

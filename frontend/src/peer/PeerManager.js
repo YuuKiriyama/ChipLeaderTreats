@@ -74,10 +74,22 @@ export class HostPeerManager {
           return;
         }
 
+        const trimmedName = msg.payload.name.trim();
+        const existingSeat = state.players.find(
+          (p) => !p.isHost && p.name.toLowerCase() === trimmedName.toLowerCase()
+        );
+        if (existingSeat && !existingSeat.isConnected) {
+          conn.send(createMessage(HostMessage.CLAIM_PROMPT, {
+            playerId: existingSeat.playerId,
+            name: existingSeat.name,
+          }));
+          return;
+        }
+
         assignedPlayerId = generateId('player');
         const newPlayer = {
           playerId: assignedPlayerId,
-          name: msg.payload.name.trim(),
+          name: trimmedName,
           buyIns: parseInt(msg.payload.buyIns) || 1,
           finalChips: null,
           isHost: false,
@@ -96,7 +108,7 @@ export class HostPeerManager {
         return;
       }
 
-      if (msg.type === GuestMessage.REJOIN) {
+      if (msg.type === GuestMessage.REJOIN || msg.type === GuestMessage.CONFIRM_CLAIM) {
         const validation = validateGuestAction(msg, null, state);
         if (!validation.ok) {
           conn.send(createMessage(HostMessage.REJOIN_FAILED, { reason: validation.reason }));
@@ -133,19 +145,6 @@ export class HostPeerManager {
       let newState = state;
 
       switch (msg.type) {
-        case GuestMessage.INCREASE_BUYIN: {
-          const amount = parseInt(msg.payload.amount);
-          newState = {
-            ...state,
-            players: state.players.map((p) =>
-              p.playerId === assignedPlayerId
-                ? { ...p, buyIns: p.buyIns + amount }
-                : p
-            ),
-          };
-          break;
-        }
-
         case GuestMessage.CHANGE_NAME: {
           newState = {
             ...state,
@@ -218,7 +217,17 @@ export class HostPeerManager {
 // ==================== Guest PeerManager ====================
 
 export class GuestPeerManager {
-  constructor({ hostPeerId, onStateUpdate, onJoinAccepted, onJoinRejected, onRejoinResult, onError, onDisconnect, onPhaseChange }) {
+  constructor({
+    hostPeerId,
+    onStateUpdate,
+    onJoinAccepted,
+    onJoinRejected,
+    onClaimPrompt,
+    onRejoinResult,
+    onError,
+    onDisconnect,
+    onPhaseChange,
+  }) {
     this.hostPeerId = hostPeerId;
     this.peer = null;
     this.conn = null;
@@ -226,6 +235,7 @@ export class GuestPeerManager {
     this.onStateUpdate = onStateUpdate;
     this.onJoinAccepted = onJoinAccepted;
     this.onJoinRejected = onJoinRejected;
+    this.onClaimPrompt = onClaimPrompt;
     this.onRejoinResult = onRejoinResult;
     this.onError = onError;
     this.onDisconnect = onDisconnect;
@@ -309,6 +319,9 @@ export class GuestPeerManager {
           break;
         case HostMessage.JOIN_REJECTED:
           this.onJoinRejected?.(msg.payload.reason);
+          break;
+        case HostMessage.CLAIM_PROMPT:
+          this.onClaimPrompt?.(msg.payload);
           break;
         case HostMessage.REJOIN_ACCEPTED:
           this.onRejoinResult?.(true);

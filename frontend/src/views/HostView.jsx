@@ -371,6 +371,11 @@ export default function HostView({ isResume, onExit }) {
         {/* QR Code & Join Link */}
         {gameState.gameStatus !== 'ended' && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow dark:shadow-gray-900/50 p-4 mb-4 text-center border border-transparent dark:border-gray-800">
+            {gameState.gameStatus === 'settling' && (
+              <p className="text-sm text-amber-800 dark:text-amber-200 mb-3 px-1">
+                Share this QR or link so each guest can open the settlement screen and enter their remaining chips. Only the host finalizes the game.
+              </p>
+            )}
             {gameState.gameStatus === 'lobby' ? (
               <>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Scan to join this game</p>

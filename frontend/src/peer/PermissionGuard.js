@@ -1,5 +1,4 @@
 import { GuestMessage } from './MessageProtocol';
-import { GAME_LIMITS } from '../utils/gameConstraints';
 
 export function validateGuestAction(message, playerId, gameState) {
   const { type, payload } = message;
@@ -20,16 +19,24 @@ export function validateGuestAction(message, playerId, gameState) {
             : 'Game already in progress';
         return { ok: false, reason };
       }
-      const nameExists = gameState.players.some(
-        (p) => p.name.toLowerCase() === payload.name.trim().toLowerCase()
+      const trimmed = payload.name.trim();
+      const existing = gameState.players.find(
+        (p) => !p.isHost && p.name.toLowerCase() === trimmed.toLowerCase()
       );
-      if (nameExists) {
-        return { ok: false, reason: 'A player with this name already exists' };
+      if (existing) {
+        if (existing.isConnected) {
+          return {
+            ok: false,
+            reason: 'That name is taken by a player who is online. Choose a different name.',
+          };
+        }
+        return { ok: true };
       }
       return { ok: true };
     }
 
-    case GuestMessage.REJOIN: {
+    case GuestMessage.REJOIN:
+    case GuestMessage.CONFIRM_CLAIM: {
       if (!payload.playerId) {
         return { ok: false, reason: 'Player ID is required' };
       }
@@ -37,24 +44,17 @@ export function validateGuestAction(message, playerId, gameState) {
       if (!player) {
         return { ok: false, reason: 'Player not found. Please join as a new player.' };
       }
+      if (player.isHost) {
+        return { ok: false, reason: 'Invalid player' };
+      }
+      if (player.isConnected) {
+        return { ok: false, reason: 'That seat is already connected. Use another device or ask the host.' };
+      }
       return { ok: true };
     }
 
     case GuestMessage.INCREASE_BUYIN: {
-      const amount = parseInt(payload.amount, 10);
-      if (!amount || amount < 1) {
-        return { ok: false, reason: 'Buy-in amount must be at least 1' };
-      }
-      if (amount > GAME_LIMITS.MAX_BUYIN_INCREASE_PER_REQUEST) {
-        return {
-          ok: false,
-          reason: `You can add at most ${GAME_LIMITS.MAX_BUYIN_INCREASE_PER_REQUEST} buy-ins per action`,
-        };
-      }
-      if (gameState.gameStatus !== 'playing' && gameState.gameStatus !== 'lobby') {
-        return { ok: false, reason: 'Cannot add buy-in at this time' };
-      }
-      return { ok: true };
+      return { ok: false, reason: 'Buy-ins can only be changed by the host' };
     }
 
     case GuestMessage.CHANGE_NAME: {
