@@ -37,7 +37,7 @@ function BlurInput({ type, value, onCommit, disabled, placeholder, min, classNam
   );
 }
 
-export default function GameConfig({ gameState, onChange, disabled }) {
+export default function GameConfig({ gameState, onChange, disabled, denominationsDisabled }) {
   const denoms = gameState.chipDenominations ?? [];
   const maxTypes = GAME_LIMITS.MAX_CHIP_DENOMINATION_TYPES;
 
@@ -135,7 +135,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
           Chip denominations (optional) — list each chip value in game chips; guests enter how many physical chips
-          they have of each value when settling.
+          they have of each value when settling. You can edit this list during play or settlement.
         </p>
         {denoms.length > 0 && (
           <div className="space-y-2 mb-2">
@@ -149,13 +149,13 @@ export default function GameConfig({ gameState, onChange, disabled }) {
                   type="number"
                   value={denomOf(row)}
                   onCommit={(v) => updateDenomValue(row.id, v)}
-                  disabled={disabled}
+                  disabled={denominationsDisabled}
                   className={inputClass}
                   min="1"
                 />
                 <button
                   type="button"
-                  disabled={disabled}
+                  disabled={denominationsDisabled}
                   onClick={() => removeDenomRow(row.id)}
                   className="text-red-500 hover:text-red-600 text-sm font-medium disabled:opacity-40"
                   aria-label="Remove denomination"
@@ -168,7 +168,7 @@ export default function GameConfig({ gameState, onChange, disabled }) {
         )}
         <button
           type="button"
-          disabled={disabled || denoms.length >= maxTypes}
+          disabled={denominationsDisabled || denoms.length >= maxTypes}
           onClick={addDenomRow}
           className="text-sm font-medium text-green-600 dark:text-green-400 hover:underline disabled:opacity-40 disabled:no-underline"
         >

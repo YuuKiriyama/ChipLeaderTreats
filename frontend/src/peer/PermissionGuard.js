@@ -10,9 +10,15 @@ export function validateGuestAction(message, playerId, gameState) {
         return { ok: false, reason: 'Name is required' };
       }
       const joinAllowed =
-        gameState.gameStatus === 'lobby' || gameState.gameStatus === 'playing';
+        gameState.gameStatus === 'lobby' ||
+        gameState.gameStatus === 'playing' ||
+        gameState.gameStatus === 'settling';
       if (!joinAllowed) {
-        return { ok: false, reason: 'Game already in progress' };
+        const reason =
+          gameState.gameStatus === 'ended'
+            ? 'This game has ended'
+            : 'Game already in progress';
+        return { ok: false, reason };
       }
       const nameExists = gameState.players.some(
         (p) => p.name.toLowerCase() === payload.name.trim().toLowerCase()

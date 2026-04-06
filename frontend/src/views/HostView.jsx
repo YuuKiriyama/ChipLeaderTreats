@@ -4,6 +4,7 @@ import { HostPeerManager } from '../peer/PeerManager';
 import { Icons } from '../components/Icons';
 import PlayerTable from '../components/PlayerTable';
 import GameConfig from '../components/GameConfig';
+import SettlingChipsInput from '../components/SettlingChipsInput';
 import {
   getHostPeerId, setHostPeerId, clearHostPeerId,
   getGameState, saveGameState, clearGameState,
@@ -129,6 +130,13 @@ export default function HostView({ isResume, onExit }) {
   };
 
   const updateConfig = (key, value) => {
+    if (key === 'chipDenominations') {
+      if (gameState.gameStatus === 'ended') return;
+      const newState = applyGameConfigChange(gameState, key, value);
+      setGameState(newState);
+      managerRef.current?.broadcastState(newState);
+      return;
+    }
     if (gameState.gameStatus !== 'lobby') return;
     const newState = applyGameConfigChange(gameState, key, value);
     setGameState(newState);
@@ -315,6 +323,7 @@ export default function HostView({ isResume, onExit }) {
 
   const joinUrl = `${window.location.origin}${window.location.pathname}#/join/${gameState.hostPeerId}`;
   const guestCount = gameState.players.filter((p) => !p.isHost && p.isConnected).length;
+  const hostPlayer = gameState.players.find((p) => p.isHost);
 
   const copyJoinLinkToClipboard = async () => {
     try {
@@ -398,7 +407,27 @@ export default function HostView({ isResume, onExit }) {
           gameState={gameState}
           onChange={updateConfig}
           disabled={gameState.gameStatus !== 'lobby'}
+          denominationsDisabled={gameState.gameStatus === 'ended'}
         />
+
+        {/* Host final chips (settling) — same entry modes as guest */}
+        {gameState.gameStatus === 'settling' && hostPlayer && (
+          <div className="bg-amber-50 dark:bg-amber-950/25 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 mb-4">
+            <p className="text-sm text-amber-900 dark:text-amber-200">
+              <span className="font-semibold">You (Host)</span>
+              <span className="text-amber-800 dark:text-amber-300"> · {hostPlayer.name}</span>
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-400 mb-1">Buy-ins: {hostPlayer.buyIns}</p>
+            <SettlingChipsInput
+              theme="host"
+              layout="standalone"
+              title="Your final chips"
+              value={hostPlayer.finalChips}
+              onCommit={(chips) => updatePlayerFinalChips(hostPlayer.playerId, chips)}
+              denominations={gameState.chipDenominations ?? []}
+            />
+          </div>
+        )}
 
         {/* Player Table */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow dark:shadow-gray-900/50 p-4 mb-4 border border-transparent dark:border-gray-800">
