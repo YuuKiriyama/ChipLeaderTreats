@@ -46,13 +46,13 @@ export default function PlayerTable({
               return (
                 <tr
                   key={player.playerId}
-                  className={`border-t border-gray-100 dark:border-gray-700 ${isMe ? 'bg-green-50 dark:bg-green-950/40' : ''} ${!player.isConnected && !player.isHost ? 'opacity-50' : ''}`}
+                  className={`border-t border-gray-100 dark:border-gray-700 ${isMe ? 'bg-green-50 dark:bg-green-950/40' : ''}`}
                 >
                   {/* Name */}
                   <td className="px-2 py-2">
                     <div className="flex items-center gap-1.5">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        player.isHost ? 'bg-yellow-400' : player.isConnected ? 'bg-green-400' : 'bg-gray-300'
+                        player.isHost ? 'bg-yellow-400' : 'bg-gray-400'
                       }`} />
                       <span className="font-medium text-gray-900 dark:text-gray-100">{player.name}</span>
                       {player.isHost && <span className="text-xs text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/40 px-1 rounded">Host</span>}

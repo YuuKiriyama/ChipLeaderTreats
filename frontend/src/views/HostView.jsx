@@ -38,7 +38,6 @@ function createInitialState(peerId, hostName) {
         buyIns: 1,
         finalChips: null,
         isHost: true,
-        isConnected: true,
       },
     ],
   };
@@ -91,9 +90,10 @@ export default function HostView({ isResume, onExit }) {
             id: typeof row.id === 'string' && row.id ? row.id : `cd_legacy_${i}`,
             value: row.value ?? row.chips ?? 1,
           })),
-          players: saved.players.map((p) =>
-            p.isHost ? p : { ...p, isConnected: false }
-          ),
+          players: saved.players.map((p) => {
+            const { isConnected: _removed, ...rest } = p;
+            return rest;
+          }),
         };
         setGameState(restored);
         saveGameState(restored);
@@ -322,7 +322,7 @@ export default function HostView({ isResume, onExit }) {
   }
 
   const joinUrl = `${window.location.origin}${window.location.pathname}#/join/${gameState.hostPeerId}`;
-  const guestCount = gameState.players.filter((p) => !p.isHost && p.isConnected).length;
+  const guestCount = gameState.players.filter((p) => !p.isHost).length;
   const hostPlayer = gameState.players.find((p) => p.isHost);
 
   const copyJoinLinkToClipboard = async () => {
@@ -363,7 +363,7 @@ export default function HostView({ isResume, onExit }) {
           <div className="flex items-center gap-2 text-sm">
             <div className={`w-2 h-2 rounded-full ${peerReady ? 'bg-green-500' : 'bg-yellow-500'}`} />
             <span className="text-gray-600 dark:text-gray-300">
-              {peerReady ? `${guestCount} guest${guestCount !== 1 ? 's' : ''} connected` : 'Connecting...'}
+              {peerReady ? `${guestCount} guest player${guestCount !== 1 ? 's' : ''}` : 'Connecting...'}
             </span>
           </div>
         </div>

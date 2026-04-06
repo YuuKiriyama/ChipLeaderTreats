@@ -2,7 +2,7 @@
 export const GuestMessage = {
   JOIN: 'JOIN',
   REJOIN: 'REJOIN',
-  /** Reclaim a disconnected seat after confirming name match (see HostMessage.CLAIM_PROMPT). */
+  /** Reclaim a registered seat after confirming name match (see HostMessage.CLAIM_PROMPT). */
   CONFIRM_CLAIM: 'CONFIRM_CLAIM',
   INCREASE_BUYIN: 'INCREASE_BUYIN',
   CHANGE_NAME: 'CHANGE_NAME',
@@ -14,7 +14,7 @@ export const HostMessage = {
   STATE_UPDATE: 'STATE_UPDATE',
   JOIN_ACCEPTED: 'JOIN_ACCEPTED',
   JOIN_REJECTED: 'JOIN_REJECTED',
-  /** Name matches an offline player — guest must confirm before seat is bound. */
+  /** Name matches an existing guest seat — confirm before binding this device. */
   CLAIM_PROMPT: 'CLAIM_PROMPT',
   REJOIN_ACCEPTED: 'REJOIN_ACCEPTED',
   REJOIN_FAILED: 'REJOIN_FAILED',

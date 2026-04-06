@@ -54,6 +54,18 @@ export class HostPeerManager {
     });
   }
 
+  _bindGuestConnection(playerId, conn) {
+    const prev = this.connections.get(playerId);
+    if (prev && prev !== conn) {
+      try {
+        prev.close();
+      } catch (_) {
+        /* ignore */
+      }
+    }
+    this.connections.set(playerId, conn);
+  }
+
   _handleConnection(conn) {
     let assignedPlayerId = null;
 
@@ -78,7 +90,7 @@ export class HostPeerManager {
         const existingSeat = state.players.find(
           (p) => !p.isHost && p.name.toLowerCase() === trimmedName.toLowerCase()
         );
-        if (existingSeat && !existingSeat.isConnected) {
+        if (existingSeat) {
           conn.send(createMessage(HostMessage.CLAIM_PROMPT, {
             playerId: existingSeat.playerId,
             name: existingSeat.name,
@@ -93,7 +105,6 @@ export class HostPeerManager {
           buyIns: parseInt(msg.payload.buyIns) || 1,
           finalChips: null,
           isHost: false,
-          isConnected: true,
         };
 
         const newState = {
@@ -101,7 +112,7 @@ export class HostPeerManager {
           players: [...state.players, newPlayer],
         };
 
-        this.connections.set(assignedPlayerId, conn);
+        this._bindGuestConnection(assignedPlayerId, conn);
         this.setState(newState);
         conn.send(createMessage(HostMessage.JOIN_ACCEPTED, { playerId: assignedPlayerId }));
         this._broadcast(newState);
@@ -116,17 +127,9 @@ export class HostPeerManager {
         }
 
         assignedPlayerId = msg.payload.playerId;
-        const newState = {
-          ...state,
-          players: state.players.map((p) =>
-            p.playerId === assignedPlayerId ? { ...p, isConnected: true } : p
-          ),
-        };
-
-        this.connections.set(assignedPlayerId, conn);
-        this.setState(newState);
+        this._bindGuestConnection(assignedPlayerId, conn);
         conn.send(createMessage(HostMessage.REJOIN_ACCEPTED, {}));
-        this._broadcast(newState);
+        this._broadcast(state);
         return;
       }
 
@@ -177,17 +180,11 @@ export class HostPeerManager {
 
     conn.on('close', () => {
       if (assignedPlayerId && !this._destroyed) {
-        console.log('Guest disconnected:', assignedPlayerId);
-        this.connections.delete(assignedPlayerId);
-        const state = this.getState();
-        const newState = {
-          ...state,
-          players: state.players.map((p) =>
-            p.playerId === assignedPlayerId ? { ...p, isConnected: false } : p
-          ),
-        };
-        this.setState(newState);
-        this._broadcast(newState);
+        const current = this.connections.get(assignedPlayerId);
+        if (current === conn) {
+          console.log('Guest disconnected:', assignedPlayerId);
+          this.connections.delete(assignedPlayerId);
+        }
       }
     });
   }

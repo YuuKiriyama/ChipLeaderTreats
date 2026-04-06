@@ -353,7 +353,7 @@ export default function GuestView({ hostPeerId, onExit }) {
           )}
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">Join Game</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 text-center">
-            If you were already seated, enter the same name as in the game to reclaim your seat after the host marks you offline.
+            Enter the same name you used when you joined to see this game again. Scanning only registers you; you can close the page anytime.
           </p>
 
           {errorMsg && (

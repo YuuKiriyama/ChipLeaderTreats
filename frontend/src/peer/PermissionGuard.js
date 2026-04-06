@@ -19,19 +19,6 @@ export function validateGuestAction(message, playerId, gameState) {
             : 'Game already in progress';
         return { ok: false, reason };
       }
-      const trimmed = payload.name.trim();
-      const existing = gameState.players.find(
-        (p) => !p.isHost && p.name.toLowerCase() === trimmed.toLowerCase()
-      );
-      if (existing) {
-        if (existing.isConnected) {
-          return {
-            ok: false,
-            reason: 'That name is taken by a player who is online. Choose a different name.',
-          };
-        }
-        return { ok: true };
-      }
       return { ok: true };
     }
 
@@ -46,9 +33,6 @@ export function validateGuestAction(message, playerId, gameState) {
       }
       if (player.isHost) {
         return { ok: false, reason: 'Invalid player' };
-      }
-      if (player.isConnected) {
-        return { ok: false, reason: 'That seat is already connected. Use another device or ask the host.' };
       }
       return { ok: true };
     }
