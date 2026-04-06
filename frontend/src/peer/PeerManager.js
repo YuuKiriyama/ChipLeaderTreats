@@ -99,10 +99,12 @@ export class HostPeerManager {
         }
 
         assignedPlayerId = generateId('player');
+        const buyInRaw = parseInt(msg.payload.buyIns, 10);
+        const buyIns = Number.isNaN(buyInRaw) ? 1 : buyInRaw;
         const newPlayer = {
           playerId: assignedPlayerId,
           name: trimmedName,
-          buyIns: parseInt(msg.payload.buyIns) || 1,
+          buyIns,
           finalChips: null,
           isHost: false,
         };

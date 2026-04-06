@@ -374,13 +374,16 @@ export default function GuestView({ hostPeerId, onExit }) {
           <div className="flex items-center gap-2 mb-6">
             <button
               type="button"
-              onClick={() => { hapticLight(); setInitialBuyIns(Math.max(1, initialBuyIns - 1)); }}
+              onClick={() => { hapticLight(); setInitialBuyIns(initialBuyIns - 1); }}
               className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
             >−</button>
             <input
               type="number"
               value={initialBuyIns}
-              onChange={(e) => setInitialBuyIns(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const n = parseInt(e.target.value, 10);
+                setInitialBuyIns(Number.isNaN(n) ? 0 : n);
+              }}
               className="w-16 h-10 text-center border border-gray-300 dark:border-gray-600 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
             <button

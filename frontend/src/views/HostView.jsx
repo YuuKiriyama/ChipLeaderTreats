@@ -199,7 +199,7 @@ export default function HostView({ isResume, onExit }) {
         ...prev,
         players: prev.players.map((p) =>
           p.playerId === playerId
-            ? { ...p, buyIns: Math.max(1, p.buyIns + delta) }
+            ? { ...p, buyIns: p.buyIns + delta }
             : p
         ),
       };
