@@ -106,6 +106,7 @@ export class HostPeerManager {
           name: trimmedName,
           buyIns,
           finalChips: null,
+          earlyExitChips: null,
           isHost: false,
         };
 

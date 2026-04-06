@@ -37,6 +37,7 @@ function createInitialState(peerId, hostName) {
         name: hostName || 'Host',
         buyIns: 1,
         finalChips: null,
+        earlyExitChips: null,
         isHost: true,
       },
     ],
@@ -92,7 +93,7 @@ export default function HostView({ isResume, onExit }) {
           })),
           players: saved.players.map((p) => {
             const { isConnected: _removed, ...rest } = p;
-            return rest;
+            return { ...rest, earlyExitChips: rest.earlyExitChips ?? null };
           }),
         };
         setGameState(restored);
@@ -169,6 +170,10 @@ export default function HostView({ isResume, onExit }) {
       ...gameState,
       gameStatus: 'settling',
       endTime: new Date().toISOString(),
+      players: gameState.players.map((p) => ({
+        ...p,
+        finalChips: p.finalChips ?? p.earlyExitChips ?? null,
+      })),
     };
     setGameState(newState);
     managerRef.current?.broadcastState(newState);
@@ -213,6 +218,18 @@ export default function HostView({ isResume, onExit }) {
       ...gameState,
       players: gameState.players.map((p) =>
         p.playerId === playerId ? { ...p, finalChips: chips } : p
+      ),
+    };
+    setGameState(newState);
+    managerRef.current?.broadcastState(newState);
+  };
+
+  const updatePlayerEarlyExitChips = (playerId, chips) => {
+    hapticLight();
+    const newState = {
+      ...gameState,
+      players: gameState.players.map((p) =>
+        p.playerId === playerId ? { ...p, earlyExitChips: chips } : p
       ),
     };
     setGameState(newState);
@@ -435,6 +452,11 @@ export default function HostView({ isResume, onExit }) {
         )}
 
         {/* Player Table */}
+        {gameState.gameStatus === 'playing' && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 px-1">
+            While the game is in progress, enter remaining chips for anyone who cashed out / left early. Values carry into settlement when you end the game.
+          </p>
+        )}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow dark:shadow-gray-900/50 p-4 mb-4 border border-transparent dark:border-gray-800">
           <PlayerTable
             players={gameState.players}
@@ -444,6 +466,7 @@ export default function HostView({ isResume, onExit }) {
             gameStatus={gameState.gameStatus}
             isHost={true}
             onUpdateBuyIns={updatePlayerBuyIns}
+            onUpdateEarlyExitChips={updatePlayerEarlyExitChips}
             onUpdateFinalChips={updatePlayerFinalChips}
             onRemovePlayer={removePlayer}
           />

@@ -39,7 +39,7 @@ export const calculateDuration = (startTime, endTime) => {
 
 export const calculateProfitLoss = (player, buyInChips, chipValue, bigBlind) => {
   const totalBuyInChips = (player.buyIns || 0) * (buyInChips || 0);
-  const chips = player.finalChips ?? player.endChips ?? 0;
+  const chips = player.finalChips ?? player.earlyExitChips ?? player.endChips ?? 0;
   const profitChips = chips - totalBuyInChips;
   const profitMoney = (profitChips / (chipValue || 1)).toFixed(2);
   const profitBB = (profitChips / (bigBlind || 1)).toFixed(1);
@@ -53,7 +53,10 @@ export const calculateProfitLoss = (player, buyInChips, chipValue, bigBlind) => 
 
 export const calculateBalance = (players, buyInChips) => {
   const totalBuyIn = players.reduce((sum, p) => sum + ((p.buyIns || 0) * (buyInChips || 0)), 0);
-  const totalFinalChips = players.reduce((sum, p) => sum + (p.finalChips ?? p.endChips ?? 0), 0);
+  const totalFinalChips = players.reduce(
+    (sum, p) => sum + (p.finalChips ?? p.earlyExitChips ?? p.endChips ?? 0),
+    0
+  );
   const difference = totalFinalChips - totalBuyIn;
   const isBalanced = difference === 0;
 

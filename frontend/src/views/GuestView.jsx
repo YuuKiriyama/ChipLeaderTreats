@@ -493,6 +493,11 @@ export default function GuestView({ hostPeerId, onExit }) {
                 <p className="text-xs text-green-700/80 dark:text-green-400/80 mt-1">
                   Buy-ins are adjusted by the host only.
                 </p>
+                {gameState.gameStatus === 'playing' && myPlayer.earlyExitChips != null && (
+                  <p className="text-xs text-amber-800 dark:text-amber-300 mt-2">
+                    Host recorded your early exit with <span className="font-semibold">{myPlayer.earlyExitChips}</span> chips remaining.
+                  </p>
+                )}
               </div>
             </div>
 

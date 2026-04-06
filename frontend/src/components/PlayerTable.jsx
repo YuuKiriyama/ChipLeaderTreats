@@ -11,10 +11,12 @@ export default function PlayerTable({
   isHost,
   myPlayerId,
   onUpdateBuyIns,
+  onUpdateEarlyExitChips,
   onUpdateFinalChips,
   onRemovePlayer,
 }) {
   const isSettled = gameStatus === 'settling' || gameStatus === 'ended';
+  const isPlaying = gameStatus === 'playing';
 
   return (
     <div>
@@ -29,6 +31,11 @@ export default function PlayerTable({
             <tr className="bg-gray-50 dark:bg-gray-800">
               <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Name</th>
               <th className="px-2 py-2 text-center text-gray-600 dark:text-gray-300">Buy-ins</th>
+              {isPlaying && (
+                <th className="px-2 py-2 text-center text-gray-600 dark:text-gray-300 min-w-[7rem]">
+                  Left early<br /><span className="font-normal text-[10px]">(chips left)</span>
+                </th>
+              )}
               {isSettled && <th className="px-2 py-2 text-center text-gray-600 dark:text-gray-300">Final Chips</th>}
               {isSettled && buyInChips && chipValue && (
                 <th className="px-2 py-2 text-right text-gray-600 dark:text-gray-300">P/L $</th>
@@ -39,7 +46,9 @@ export default function PlayerTable({
           <tbody>
             {players.map((player) => {
               const isMe = player.playerId === myPlayerId;
-              const pnl = isSettled && player.finalChips != null && buyInChips && chipValue
+              const chipTotal =
+                player.finalChips ?? player.earlyExitChips ?? null;
+              const pnl = isSettled && chipTotal != null && buyInChips && chipValue
                 ? calculateProfitLoss(player, buyInChips, chipValue, bigBlind)
                 : null;
 
@@ -78,6 +87,20 @@ export default function PlayerTable({
                       <span className="font-medium">{player.buyIns}</span>
                     )}
                   </td>
+
+                  {/* Early exit (in progress) */}
+                  {isPlaying && (
+                    <td className="px-2 py-2 text-center">
+                      {isHost && onUpdateEarlyExitChips ? (
+                        <EarlyChipsInput
+                          value={player.earlyExitChips}
+                          onCommit={(val) => onUpdateEarlyExitChips(player.playerId, val)}
+                        />
+                      ) : (
+                        <span className="font-medium tabular-nums">{player.earlyExitChips ?? '—'}</span>
+                      )}
+                    </td>
+                  )}
 
                   {/* Final Chips */}
                   {isSettled && (
@@ -153,9 +176,37 @@ function FinalChipsInput({ value, onCommit }) {
   );
 }
 
+/** Remaining chips if player left early — same behavior as final chips input. */
+function EarlyChipsInput({ value, onCommit }) {
+  const [local, setLocal] = useState(value ?? '');
+
+  useEffect(() => {
+    setLocal(value ?? '');
+  }, [value]);
+
+  return (
+    <input
+      type="number"
+      value={local}
+      onChange={(e) => setLocal(e.target.value)}
+      onBlur={() => {
+        const val = local === '' ? null : parseInt(local, 10);
+        onCommit(Number.isNaN(val) ? null : val);
+      }}
+      className="w-[4.5rem] px-1 py-0.5 text-center border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+      placeholder="—"
+      min="0"
+      title="Remaining chips when this player left (early exit)"
+    />
+  );
+}
+
 function BalanceCheck({ players, buyInChips }) {
   const totalBuyIn = players.reduce((sum, p) => sum + ((p.buyIns || 0) * buyInChips), 0);
-  const totalFinal = players.reduce((sum, p) => sum + (p.finalChips ?? 0), 0);
+  const totalFinal = players.reduce(
+    (sum, p) => sum + (p.finalChips ?? p.earlyExitChips ?? 0),
+    0
+  );
   const allFilled = players.every((p) => p.finalChips != null);
   const diff = totalFinal - totalBuyIn;
 
