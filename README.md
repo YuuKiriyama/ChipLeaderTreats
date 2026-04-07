@@ -1,6 +1,6 @@
 # ChipLeaderTreats
 
-A peer-to-peer multiplayer poker score tracker. No server, no accounts — just open the link, create a game, and share the QR code.
+A peer-to-peer multiplayer poker score tracker. No server, no accounts — open the link, create a game, and share the QR code.
 
 ## How It Works
 
@@ -14,63 +14,68 @@ Host opens website ──> Creates game ──> QR code generated
                               Real-time game state sync via DataChannel
 ```
 
-- **Host** creates a game on their device, which acts as the authoritative server
-- **Guests** scan the QR code (or open the link) to join
-- All communication happens directly between devices via WebRTC (PeerJS)
-- Game data is stored in the host's browser (localStorage), not on any server
-- The deployed site (Vercel) serves static files plus a small **serverless** endpoint (`/api/turn-credentials`) that fetches short-lived TURN credentials from Metered — your Metered API key stays on the server, not in the browser bundle
+- **Host** creates a game on their device and holds the authoritative game state
+- **Guests** scan the QR code (or open the link) to register and view the game; the link is mainly for **joining / viewing** — staying connected is optional
+- Communication is direct between devices via WebRTC (PeerJS)
+- Game data is stored in the **host’s** browser (`localStorage`), not on your own backend
+- The deployed site (e.g. Vercel) serves static files plus a small **serverless** endpoint (`/api/turn-credentials`) that fetches short-lived TURN credentials from Metered — the API key stays on the server, not in the browser bundle
 
 ## Features
 
-- **QR Code Join** — Host displays a QR code, guests scan to join instantly
-- **Real-time Sync** — Game state broadcasts to all connected players via WebRTC
-- **Permission Model** — Host controls game settings and player management; guests can only increase their own buy-in and submit final chips during settlement
-- **Persistent Sessions** — Both host and guest sessions survive browser refresh (localStorage + stable Peer ID)
-- **Reconnection** — Guests can rejoin after disconnection using their player token
-- **Offline-first** — No server dependency after the page loads; PeerJS cloud signaling only used for initial connection
-- **Settlement & History** — End game, enter final chips, auto-calculate P/L in dollars and BB; games saved to host's local history
+- **QR code join** — Host shows a QR code; guests open the same URL with the host’s Peer ID in the hash
+- **Real-time sync** — Game state is broadcast to connected guests over WebRTC data channels
+- **Permissions** — Host sets blinds, buy-in chip value, chip denominations, and **all buy-in counts** (per player). Guests cannot change buy-ins remotely. Guests can submit **final / settlement** chip totals when the host enters the settlement phase
+- **Negative buy-ins** — Buy-in count can be negative to represent unloading chips / adjustments (卸码)
+- **Reconnection & name reclaim** — Guests keep a session in `localStorage` when possible; if the browser loses the session, they can **enter the same in-game name** and confirm they are reclaiming that seat (not a new player with a duplicate name)
+- **No guest “online” indicator** — Registration is by name; a new connection replaces the previous one for the same seat
+- **Early exit while playing** — During an active game, the host can enter **remaining chips** for any player who left early; those values carry into settlement when the host ends the game
+- **Settlement & history** — Host ends the game and shares the link so guests can enter remaining chips; P/L is shown in dollars and BB; completed games are saved to the host’s local history
+- **Offline-first** — After load, no app server is required; PeerJS signaling is only used to establish the WebRTC connection
 
 ## Tech Stack
 
 - **React 18** + **Vite** + **Tailwind CSS**
-- **PeerJS** (WebRTC abstraction for P2P data channels)
-- **qrcode.react** (QR code generation)
-- **localStorage** (game state and history persistence)
-- **Vercel** (static hosting + Serverless Function for TURN credentials)
+- **PeerJS** (WebRTC data channels)
+- **qrcode.react** (QR codes)
+- **localStorage** (host game state, guest session, history)
+- **Vercel** (static hosting + serverless TURN credential proxy)
 
 ## Project Structure
 
 ```
 frontend/
 ├── src/
-│   ├── peer/                    # P2P networking layer
-│   │   ├── PeerManager.js       # Host/Guest connection lifecycle
-│   │   ├── MessageProtocol.js   # Message types and serialization
-│   │   └── PermissionGuard.js   # Guest action validation
-│   ├── views/                   # Page-level components
-│   │   ├── HostView.jsx         # Host: QR code, config, player management
-│   │   ├── GuestView.jsx        # Guest: join, view state, submit chips
-│   │   └── HistoryView.jsx      # Game history browser
-│   ├── components/              # Shared components
-│   │   ├── GameConfig.jsx       # Game settings form
-│   │   ├── PlayerTable.jsx      # Player list with P/L display
-│   │   └── Icons.jsx            # SVG icon components
+│   ├── peer/
+│   │   ├── PeerManager.js       # Host/Guest connections, JOIN / REJOIN / CONFIRM_CLAIM
+│   │   ├── MessageProtocol.js   # Message types and JSON payloads
+│   │   ├── PermissionGuard.js   # Guest action validation on the host
+│   │   └── peerConfig.js        # ICE/TURN (Metered via /api when deployed)
+│   ├── views/
+│   │   ├── HostView.jsx         # QR, config, player table, settle / save
+│   │   ├── GuestView.jsx        # Join, reclaim by name, view state, settlement input
+│   │   └── HistoryView.jsx      # Saved games
+│   ├── components/
+│   │   ├── GameConfig.jsx
+│   │   ├── PlayerTable.jsx      # Buy-ins (host), early exit, final chips, P/L
+│   │   ├── SettlingChipsInput.jsx
+│   │   ├── ThemeToggle.jsx
+│   │   └── Icons.jsx
 │   ├── utils/
-│   │   ├── localStorage.js      # Persistence (game state, sessions, history)
-│   │   └── helpers.js           # Calculations and formatting
-│   ├── App.jsx                  # Hash router + home screen
-│   ├── main.jsx                 # Entry point
-│   └── index.css                # Global styles
+│   │   ├── localStorage.js
+│   │   ├── helpers.js           # P/L, balance, formatting
+│   │   └── gameConstraints.js   # Limits for config fields
+│   ├── App.jsx                  # Hash router + home
+│   └── ...
 ├── index.html
-├── vite.config.js
+├── vite.config.js               # dev server :3000, host 0.0.0.0
 └── package.json
-api/turn-credentials.js          # Vercel: Metered TURN credentials proxy
-vercel.json                      # Vercel deployment config
+api/turn-credentials.js          # Vercel: Metered TURN credentials
+vercel.json
 ```
 
 ## Quick Start
 
-### Local Development
+### Local development
 
 ```bash
 cd frontend
@@ -78,63 +83,56 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` in your browser.
+Open **http://localhost:3000** (Vite is set to port `3000` and binds to `0.0.0.0`).
 
-### Testing with Multiple Devices
+### Testing with multiple devices
 
-1. Open the host page using the **Network URL** shown by Vite (e.g., `http://192.168.x.x:3000`), not `localhost`
-2. The QR code will contain the network-accessible URL
-3. Guests on the same WiFi scan the QR code to join
-
-To test on the same machine, use two different browsers (e.g., Chrome as host, Safari as guest) so localStorage is isolated.
+1. Use the **network URL** Vite prints (e.g. `http://192.168.x.x:3000`), not only `localhost`, so phones can reach the host
+2. The QR code should use that reachable URL
+3. Same machine: use two browsers (e.g. Chrome + Safari) so `localStorage` is separate
 
 ### Deploy to Vercel
 
-In the Vercel project **Settings → Environment Variables**, add:
+In the Vercel project **Settings → Environment Variables**:
 
 | Name | Value |
 |------|--------|
-| `METERED_API_KEY` | Your Metered **API Key** (Dashboard → API Keys) |
-| `METERED_APP_DOMAIN` | Your Metered app host, e.g. `chipleadertreats.metered.live` (no `https://`) |
+| `METERED_API_KEY` | Metered **API Key** (Dashboard → API Keys) |
+| `METERED_APP_DOMAIN` | App host, e.g. `yourapp.metered.live` (no `https://`) |
 
 ```bash
-# Install Vercel CLI
 npm i -g vercel
-
-# Deploy from project root
 vercel
 ```
 
-Or connect the GitHub repo to Vercel for automatic deployments. The `vercel.json` is already configured.
+Or connect the GitHub repo for automatic deploys. `vercel.json` is included.
 
 ### Local dev with TURN API
 
-Plain `npm run dev` in `frontend/` does **not** serve `/api/turn-credentials`. The app falls back to STUN-only (fine for same-LAN testing). For cross-network testing locally, run from the **repo root**:
+Plain `npm run dev` in `frontend/` does **not** serve `/api/turn-credentials`; the app falls back to STUN-only (usually enough on the same LAN). For cross-network tests locally, from the **repo root**:
 
 ```bash
 npx vercel dev
 ```
 
-Then open the URL Vercel prints (it proxies both the API and the frontend).
+Use the URL Vercel prints so both the API and the frontend are proxied.
 
-## Game Flow
+## Game flow
 
-1. **Host** enters their name and creates a game
-2. **Host** configures blinds, buy-in chips, and chip rate
-3. **Guests** scan QR code, enter name and initial buy-ins, join the lobby
+1. **Host** enters a name and creates a game (gets a Peer ID and QR / link)
+2. **Host** sets blinds, buy-in chip size, chip value, optional chip denominations
+3. **Guests** open the link, enter their **name** and initial buy-in count (can be negative), and join the lobby
 4. **Host** starts the game
-5. During the game, guests can add buy-ins; host can adjust any player's buy-ins
-6. **Host** ends the game, entering the settlement phase
-7. All players enter their final chip counts
-8. **Host** finalizes and saves — P/L is calculated and the game is archived to history
+5. **During play** — Host adjusts every player’s buy-ins; host may enter **early exit** remaining chips for players who left; guests see live state when connected
+6. **Host** ends the game → settlement phase; guests (re)open the link with their name to enter **final** remaining chips if needed
+7. **Host** finalizes → P/L is computed and the game is appended to **history**
 
-## Data & Privacy
+## Data & privacy
 
-- All game data lives in the **host's browser localStorage**
-- No data is sent to or stored on any server
-- PeerJS's public signaling server (`0.peerjs.com`) is only used to establish the initial WebRTC connection — no game data passes through it
-- TURN relay traffic goes through Metered; temporary credentials are issued by your Vercel function, not embedded in client code
-- Clearing the host's browser data will erase game history
+- Game state and history live in the **host’s** browser `localStorage`
+- Game payload does not go through your Vercel app database; it flows over WebRTC between host and guests
+- PeerJS public signaling is only for connection setup; TURN relay may go through Metered when NAT traversal requires it
+- Clearing the host’s site data removes local games and history
 
 ## License
 
