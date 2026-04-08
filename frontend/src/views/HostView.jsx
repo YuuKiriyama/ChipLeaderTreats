@@ -265,6 +265,8 @@ export default function HostView({ isResume, onExit }) {
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">Your Name</h2>
           <input
             type="text"
+            name="host-display-name"
+            autoComplete="nickname"
             value={hostName}
             onChange={(e) => setHostName(e.target.value)}
             placeholder="Enter your name"

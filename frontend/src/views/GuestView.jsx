@@ -363,6 +363,8 @@ export default function GuestView({ hostPeerId, onExit }) {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Name</label>
           <input
             type="text"
+            name="player-display-name"
+            autoComplete="nickname"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
             placeholder="Enter your name"
@@ -379,6 +381,8 @@ export default function GuestView({ hostPeerId, onExit }) {
             >−</button>
             <input
               type="number"
+              name="initial-buy-ins"
+              autoComplete="off"
               value={initialBuyIns}
               onChange={(e) => {
                 const n = parseInt(e.target.value, 10);
